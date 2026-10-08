@@ -4,164 +4,595 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dafa code</title>
+    <meta name="description" content="Portfolio of Dafa Fairuz Rahman - Software Engineering student passionate about backend systems, web development, robotics, and AI.">
+    <title>Dafa Fairuz Rahman — Software Engineer & Developer</title>
+
+    <script>
+        try {
+            const root = document.documentElement;
+            const savedTheme = localStorage.getItem('portfolio-theme');
+            if (savedTheme) {
+                root.dataset.theme = savedTheme;
+                root.dataset.customColors = 'true';
+            }
+            const savedScheme = localStorage.getItem('portfolio-scheme');
+            if (savedScheme === 'light' || savedScheme === 'dark') {
+                root.dataset.scheme = savedScheme;
+                root.dataset.customColors = 'true';
+            } else {
+                root.dataset.scheme = savedTheme === 'amber' ? 'light' : 'dark';
+            }
+            const savedBackground = localStorage.getItem('portfolio-background');
+            if (/^#[0-9a-f]{6}$/i.test(savedBackground || '')) {
+                root.style.setProperty('--user-bg-color', savedBackground);
+                root.dataset.userBackground = 'true';
+                root.dataset.customColors = 'true';
+            }
+            const savedBackgroundEffect = localStorage.getItem('portfolio-background-effect');
+            if (savedBackgroundEffect === 'black-hole' || savedBackgroundEffect === 'video') {
+                root.dataset.backgroundEffect = savedBackgroundEffect;
+            }
+            if (localStorage.getItem('services-rainbow-icons') === 'true') {
+                root.dataset.serviceIcons = 'rainbow';
+            }
+        } catch {}
+    </script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+            }
+        }
+    </script>
     
     <!-- Box Icons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
-    <!-- Font Black Ops One -->
+    <!-- Font Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Link ke file CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <canvas id="black-hole-canvas" aria-hidden="true" hidden></canvas>
+    <video id="background-video" aria-hidden="true" autoplay muted loop playsinline preload="metadata" hidden>
+        <source src="352344_medium.mp4" type="video/mp4">
+    </video>
+
+    <!-- Ambient Background Blobs -->
+    <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
     <!-- Bagian Header (Navigasi) -->
     <header class="header">
-        <a href="#" class="logo">CV D</a>
-        <i class='bx bx-menu' id="menu-icon"></i>
-        <nav class="navbar">
+        <a href="#home" class="logo">CV D</a>
+
+        <nav class="navbar" id="navigation-menu">
             <a href="#home" class="active">Home</a>
             <a href="#about">About</a>
+            <a href="#skills">Skills</a>
             <a href="#services">Services</a>
             <a href="#portfolio">Portfolio</a>
             <a href="#contact">Contact</a>
         </nav>
+
+        <div class="header-actions">
+            <label class="theme-picker" for="theme-select" title="Change Theme Color">
+                <i class='bx bx-palette' aria-hidden="true"></i>
+                <select id="theme-select" aria-label="Choose a color theme">
+                    <option value="ocean">Ocean</option>
+                    <option value="forest">Forest</option>
+                    <option value="amber">Amber</option>
+                    <option value="rose">Rose</option>
+                </select>
+                <i class='bx bx-chevron-down theme-picker-chevron' aria-hidden="true"></i>
+            </label>
+
+            <details class="background-menu" id="background-menu">
+                <summary aria-label="Customize page background" title="Customize page background">
+                    <i class='bx bx-layer' aria-hidden="true"></i>
+                    <span>Background</span>
+                    <i class='bx bx-chevron-down background-menu-chevron' aria-hidden="true"></i>
+                </summary>
+                <div class="background-menu-panel">
+                    <p class="background-menu-title">Choose a background</p>
+                    <div class="background-presets" role="group" aria-label="Background presets">
+                        <button type="button" class="background-preset" data-background-preset="#0b0f19" aria-label="Midnight" title="Midnight">
+                            <span style="--swatch-color: #0b0f19"></span>
+                        </button>
+                        <button type="button" class="background-preset" data-background-preset="#102b3a" aria-label="Ocean" title="Ocean">
+                            <span style="--swatch-color: #102b3a"></span>
+                        </button>
+                        <button type="button" class="background-preset" data-background-preset="#12271e" aria-label="Forest" title="Forest">
+                            <span style="--swatch-color: #12271e"></span>
+                        </button>
+                        <button type="button" class="background-preset" data-background-preset="#2b1722" aria-label="Rose" title="Rose">
+                            <span style="--swatch-color: #2b1722"></span>
+                        </button>
+                        <button type="button" class="background-preset" data-background-preset="#f1f5f9" aria-label="Mist" title="Mist">
+                            <span style="--swatch-color: #f1f5f9"></span>
+                        </button>
+                    </div>
+                    <button type="button" class="background-effect-option" id="black-hole-background" aria-pressed="false">
+                        <i class='bx bx-orbit' aria-hidden="true"></i>
+                        <span>3D Black Hole</span>
+                        <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="background-effect-option" id="video-background" aria-pressed="false">
+                        <i class='bx bx-film' aria-hidden="true"></i>
+                        <span>Video background</span>
+                        <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
+                    </button>
+                    <p class="background-effect-status" id="background-effect-status" aria-live="polite"></p>
+                    <label class="custom-background-control" for="background-color">
+                        <span>Custom color</span>
+                        <input id="background-color" type="color" value="#0b0f19" aria-label="Choose custom background color">
+                    </label>
+                    <button type="button" class="background-reset" id="background-reset">Reset to theme default</button>
+                </div>
+            </details>
+
+            <button class="scheme-toggle" id="scheme-toggle" type="button" role="switch" aria-label="Light color scheme" aria-checked="false" title="Switch appearance mode">
+                <i class='bx bx-moon' aria-hidden="true"></i>
+                <span>Dark</span>
+            </button>
+            <button class='bx bx-menu' id="menu-icon" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navigation-menu"></button>
+        </div>
     </header>
 
     <!-- Bagian Home (Beranda) -->
     <section class="home" id="home">
         <div class="home-content">
-            <h3>Hello, It's Me</h3>
-            <h1>Dafa Fairuz Rahman</h1>
-            <h3>And I'm a <span class="multiple-text"></span></h3>
-            <p>Informatics student specializing in Software Engineering who how code can become something useful, accessible, and capable of interacting with the real world.</p>
-            <div class="social-media">
-                <a href="https://www.facebook.com/share/1B4ZqGwBiX/"><i class='bx bxl-facebook'></i></a>
-                <a href="https://x.com/Someone1fx"><i class='bx bxl-twitter'></i></a>
-                <a href="https://www.instagram.com/df386683?stkn=MWU2M2d5dHN6ZDJmYw=="><i class='bx bxl-instagram'></i></a>
-                <a href="https://www.linkedin.com/in/dafa-fairuz-rahman-a5b909421?utm_source=share_via&utm_content=profile&utm_medium=member_android"><i class='bx bxl-linkedin'></i></a>
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span>Software Engineering • SMK Krian 1</span>
             </div>
-            <a href="cv.pdf" download class="btn">Download CV</a>
+
+            <h3 class="hero-greeting">Hello, It's Me</h3>
+            <h1 class="hero-name">Dafa Fairuz Rahman</h1>
+            <h3 class="hero-role">And I'm a <span class="multiple-text"></span></h3>
+            
+            <p class="hero-desc">
+                Informatics student specializing in Software Engineering. Dedicated to building efficient backend logic, interactive web applications, robotics automation, and software that connects seamlessly with the real world.
+            </p>
+
+            <div class="hero-btn-group">
+                <a href="#contact" class="btn btn-primary">
+                    <i class='bx bx-paper-plane'></i> Get In Touch
+                </a>
+                <a href="cv.pdf" download class="btn btn-secondary">
+                    <i class='bx bx-download'></i> Download CV
+                </a>
+            </div>
+
+            <div class="social-media">
+                <a href="https://www.linkedin.com/in/dafa-fairuz-rahman-a5b909421?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener" aria-label="LinkedIn"><i class='bx bxl-linkedin'></i></a>
+                <a href="https://www.instagram.com/df386683?stkn=MWU2M2d5dHN6ZDJmYw==" target="_blank" rel="noopener" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                <a href="https://x.com/Someone1fx" target="_blank" rel="noopener" aria-label="Twitter / X"><i class='bx bxl-twitter'></i></a>
+                <a href="https://www.facebook.com/share/1B4ZqGwBiX/" target="_blank" rel="noopener" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-number">5+</span>
+                    <span class="stat-label">Projects Built</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">3+</span>
+                    <span class="stat-label">Tech Domains</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Passion to Learn</span>
+                </div>
+            </div>
         </div>
-        <div class="home-img">
-            <img src="images1.png" alt="Profile Image">
+
+        <div class="home-img-wrapper">
+            <div class="avatar-glow"></div>
+            <div class="home-img">
+                <img src="images1.png" alt="Dafa Fairuz Rahman Profile">
+            </div>
+
+            <div class="floating-chip chip-top">
+                <i class='bx bx-code-alt'></i>
+                <div>
+                    <strong>Web & Backend</strong>
+                    <span>Clean Code</span>
+                </div>
+            </div>
+
+            <div class="floating-chip chip-bottom">
+                <i class='bx bx-chip'></i>
+                <div>
+                    <strong>Robotics & IoT</strong>
+                    <span>Hardware Logic</span>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Bagian About (Tentang Saya) -->
     <section class="about" id="about">
-        <div class="about-img">
-            <img src="images6.png" alt="About Image">
+        <div class="about-img-wrapper">
+            <div class="about-img-card">
+                <img src="images6.png" alt="Coding Philosophy" class="about-img">
+                <div class="about-card-badge">
+                    <i class='bx bx-terminal'></i>
+                    <span>Always Learning, Always Building</span>
+                </div>
+            </div>
         </div>
-      <div class="about-content">
-    <h2 class="heading">About <span>Me</span></h2>
-    <h3>Student interested in Software Engineering</h3>
-    <p>
-        I am a Software Engineering student from SMK KRIAN 1 as Informatics program, with a strong interest in software development, robotics, and technology. 
-        <span class="more-text"> I enjoy learning how code can become useful systems that connect people, devices, and information. I prefer learning through practice, experimentation, and understanding how things work. I am currently developing my skills in web development and system integration, with a long-term interest in secure systems, networking, and robotics. This portfolio showcases my projects, skills, and progress as I continue to grow.</span>
-    </p>
-    <a href="#" id="read-more-btn" class="btn">Read More</a>
-</div>
+
+        <div class="about-content">
+            <span class="section-tag">WHO I AM</span>
+            <h2 class="heading">About <span>Me</span></h2>
+            <h3>Software Engineering Student & Technology Explorer</h3>
+            
+            <p>
+                I am a Software Engineering student from <strong>SMK KRIAN 1</strong> (Informatics program), driven by curiosity for software development, system design, robotics, and emerging technologies. 
+                <span class="more-text">
+                    I believe that programming is more than writing syntax—it is about designing useful systems that connect people, physical devices, and data. I learn best through direct experimentation, hands-on debugging, and understanding internal architectures. Currently expanding my expertise across fullstack web development, backend APIs, microcontrollers, and computer hardware systems.
+                </span>
+            </p>
+
+            <div class="about-highlights-grid">
+                <div class="highlight-item">
+                    <i class='bx bx-book-open'></i>
+                    <div>
+                        <strong>Education</strong>
+                        <span>SMK Krian 1 (RPL)</span>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <i class='bx bx-map-pin'></i>
+                    <div>
+                        <strong>Location</strong>
+                        <span>Sidoarjo, Indonesia</span>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <i class='bx bx-layer'></i>
+                    <div>
+                        <strong>Focus</strong>
+                        <span>Web, IoT & Backend</span>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <i class='bx bx-check-shield'></i>
+                    <div>
+                        <strong>Interests</strong>
+                        <span>Security & Automation</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#" id="read-more-btn" class="btn btn-primary">Read More</a>
+        </div>
+    </section>
+
+    <!-- Bagian Skills (Keahlian) -->
+    <section class="skills" id="skills">
+        <span class="section-tag center">MY CAPABILITIES</span>
+        <h2 class="heading">Technical <span>Skills</span></h2>
+
+        <div class="skills-container">
+            <div class="skill-category">
+                <div class="skill-category-header">
+                    <i class='bx bx-code-curly'></i>
+                    <h3>Web & Backend</h3>
+                </div>
+                <div class="skill-tags">
+                    <div class="skill-pill"><i class='bx bxl-html5'></i> HTML5</div>
+                    <div class="skill-pill"><i class='bx bxl-css3'></i> CSS3 / Modern UI</div>
+                    <div class="skill-pill"><i class='bx bxl-javascript'></i> JavaScript (ES6+)</div>
+                    <div class="skill-pill"><i class='bx bxl-python'></i> Python</div>
+                    <div class="skill-pill"><i class='bx bx-server'></i> RESTful APIs</div>
+                    <div class="skill-pill"><i class='bx bx-data'></i> Database Basics</div>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <div class="skill-category-header">
+                    <i class='bx bx-chip'></i>
+                    <h3>Robotics & IoT</h3>
+                </div>
+                <div class="skill-tags">
+                    <div class="skill-pill"><i class='bx bx-microchip'></i> Arduino Platform</div>
+                    <div class="skill-pill"><i class='bx bx-code'></i> C / C++ Basics</div>
+                    <div class="skill-pill"><i class='bx bx-broadcast'></i> Wokwi Simulator</div>
+                    <div class="skill-pill"><i class='bx bx-slider-alt'></i> Sensor Integration</div>
+                    <div class="skill-pill"><i class='bx bx-bulb'></i> Circuit Design</div>
+                    <div class="skill-pill"><i class='bx bx-cog'></i> Automation Logic</div>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <div class="skill-category-header">
+                    <i class='bx bx-wrench'></i>
+                    <h3>Hardware & Tools</h3>
+                </div>
+                <div class="skill-tags">
+                    <div class="skill-pill"><i class='bx bx-desktop'></i> PC Assembly</div>
+                    <div class="skill-pill"><i class='bx bx-search-alt-2'></i> Hardware Diagnostics</div>
+                    <div class="skill-pill"><i class='bx bxl-git'></i> Git & GitHub</div>
+                    <div class="skill-pill"><i class='bx bxl-visual-studio'></i> VS Code</div>
+                    <div class="skill-pill"><i class='bx bxl-tux'></i> Linux Fundamentals</div>
+                    <div class="skill-pill"><i class='bx bx-brain'></i> Teachable Machine AI</div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Bagian Services (Layanan) -->
     <section class="services" id="services">
-        <h2 class="heading">Our <span>Services</span></h2>
+        <div class="services-heading-row">
+            <div>
+                <span class="section-tag center">WHAT I CAN DO</span>
+                <h2 class="heading">My <span>Services</span></h2>
+            </div>
+            <label class="services-rainbow-toggle" for="services-rainbow">
+                <input id="services-rainbow" type="checkbox">
+                <span class="services-rainbow-swatch" aria-hidden="true"></span>
+                <span>Rainbow icons</span>
+            </label>
+        </div>
+
         <div class="services-container">
             <div class="services-box">
-                <i class='bx bx-bug service-icon'></i>
-                <h3>Bug Hunter</h3>
-                <p>Learning to identify web vulnerabilities and understand common security risks through practical exploration and testing</p>
+                <div class="service-icon-box">
+                    <i class='bx bx-bug service-icon'></i>
+                </div>
+                <h3>Bug Hunter & Security</h3>
+                <p>Learning to identify web vulnerabilities, analyzing authentication risks, and applying defensive security best practices through practical testing.</p>
+                <div class="service-tag">Security & QA</div>
             </div>
+
             <div class="services-box">
-                <img class="service-icon" src="icon2.svg" alt="Robotics">
+                <div class="service-icon-box">
+                    <img class="service-icon" src="icon2.svg" alt="Robotics">
+                </div>
                 <h3>Robotics & Automation</h3>
-                <p>Designing and exploring automation solutions using software, control systems, and robotics</p>
+                <p>Designing interactive hardware automation using microcontrollers, sensors, and simulation tools to bridge physical devices with software.</p>
+                <div class="service-tag">IoT & Microcontroller</div>
             </div>
+
             <div class="services-box">
-                <img class="service-icon" src="icon3.svg" alt="Backend Developer">
-                <h3>Backend Developer</h3>
-                <p>Learning to build backend systems, manage data, and connect applications with servers and APIs</p>    
+                <div class="service-icon-box">
+                    <img class="service-icon" src="icon3.svg" alt="Backend Developer">
+                </div>
+                <h3>Backend Development</h3>
+                <p>Developing structured backend architectures, REST API endpoints, and database interactions to power responsive and resilient web applications.</p>
+                <div class="service-tag">APIs & Architecture</div>
             </div>
         </div>
     </section>
 
     <!-- Bagian Portfolio (Karya) -->
     <section class="portfolio" id="portfolio">
-        <h2 class="heading">Latest <span>Project</span></h2>
+        <span class="section-tag center">FEATURED WORKS</span>
+        <h2 class="heading">Latest <span>Projects</span></h2>
+        
         <div class="portfolio-container">
-            <div class="portfolio-box">
-                <img src="images5.jpg" alt="Portfolio 1">
-                <div class="portfolio-layer">
-                    <h4>Automation Project</h4>
-                    <p>An exploration of microcontroller fundamentals using the Wokwi simulation platform. This project helped me practice programming logic and virtual circuit design to control LED patterns without risking damage to physical components.</p>  
-                <a href="#"><i class='bx bx-link-external'></i></a>
+            <!-- Project 1 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="images5.jpg" alt="Automation Project Wokwi">
+                    <span class="portfolio-category-badge">Microcontroller</span>
+                </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>Arduino</span>
+                        <span>Wokwi</span>
+                        <span>C++</span>
+                        <span>Circuits</span>
+                    </div>
+                    <h4>Automation & Circuit Simulation</h4>
+                    <p>Microcontroller project utilizing Wokwi simulation to program control logic and virtual circuit designs for dynamic LED sequencing safely.</p>
                 </div>
             </div>
-            <div class="portfolio-box">
-                <img src="images8.jpg" alt="Portfolio 2">
-                <div class="portfolio-layer">
-                    <h4>Teacheble Machine (AI)</h4>
-                    <p>My initial project exploring the integration of AI into web applications. This interactive game detects player hand gestures in real-time via a webcam, helping me to understanding more about AI.</p>
-                  <a href="#"><i class='bx bx-link-external'></i></a>
+
+            <!-- Project 2 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="images8.jpg" alt="Simple Teachable Machine AI">
+                    <span class="portfolio-category-badge">Artificial Intelligence</span>
+                </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>AI / ML</span>
+                        <span>Teachable Machine</span>
+                        <span>Webcam</span>
+                        <span>JS</span>
+                    </div>
+                    <h4>Teachable Machine Gesture Game</h4>
+                    <p>Interactive web application utilizing trained computer vision models to detect hand gestures in real-time through the webcam for game interaction.</p>
                 </div>
             </div>
-            <div class="portfolio-box">
-                <img src="images4.jpg" alt="Portfolio 3">
-                <div class="portfolio-layer">
-                    <h4>Eksperimental Plant Project</h4>
-                    <p>Repurposing plastic mineral water to cultivate water spinach at home. This simple environmental initiative builds recycling awareness, with future plans to integrate IoT technology for an automated watering system.</p>          <a href="#"><i class='bx bx-link-external'></i></a>
+
+            <!-- Project 3 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="images4.jpg" alt="Experimental Plant Project">
+                    <span class="portfolio-category-badge">Eco-Tech & IoT</span>
+                </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>Hydroponics</span>
+                        <span>IoT Concept</span>
+                        <span>Sustainability</span>
+                    </div>
+                    <h4>Experimental Hydroponic Plant System</h4>
+                    <p>Urban cultivation prototype repurposing plastic bottles for water spinach with environmental focus, planned for automated sensor-based smart watering.</p>
                 </div>
             </div>
-            <div class="portfolio-box">
-                <img src="images7.jpg" alt="Portfolio 4">
-                <div class="portfolio-layer">
-                    <h4>Hardware "Services"</h4>
-                    <p>Beyond software development, I also study computer hardware fundamentals. This documentation captures my practical experience identifying motherboard components, assembling a custom PC, and disassembling a laptop to understand its internal architecture.</p>   
-                  <a href="#"><i class='bx bx-link-external'></i></a>
+
+            <!-- Project 4 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="images7.jpg" alt="Hardware Engineering and Assembly">
+                    <span class="portfolio-category-badge">Hardware</span>
+                </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>PC Assembly</span>
+                        <span>Diagnostics</span>
+                        <span>Motherboard</span>
+                    </div>
+                    <h4>PC Assembly & Hardware Diagnostics</h4>
+                    <p>Hands-on computer hardware engineering: identifying motherboard components, custom PC assembly, and laptop hardware teardown & maintenance.</p>
                 </div>
             </div>
-          <div class="portfolio-box">
-                <img src="images9.jpg" alt="Portfolio 2">
-                <div class="portfolio-layer">
-                    <h4>Basic Phyton Clock</h4>
-                    <p>A desktop graphical user interface (GUI) application built with Python that displays a functional, real-time analog clock alongside the current date. This project served as a practical exercise in understanding basic GUI development and applying mathematical logic to animate the clock hands accurately.</p>
-                  <a href="#"><i class='bx bx-link-external'></i></a>
+
+            <!-- Project 5 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="imges11.jpg" alt="Video-editing project with a multi-track timeline">
+                    <span class="portfolio-category-badge">Video Editing</span>
                 </div>
-          </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>Timeline Editing</span>
+                        <span>Video Clips</span>
+                        <span>Audio Tracks</span>
+                    </div>
+                    <h4>Video Editing & Timeline Composition</h4>
+                    <p>A video-editing project using a multi-track timeline to arrange video clips, audio, and visual elements into one sequence. This project helped me practice organizing layers, placing clips, and shaping the flow of a video.</p>
+                </div>
+            </div>
+
+            <!-- Project 6 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="images9.jpg" alt="Basic Python Clock">
+                    <span class="portfolio-category-badge">Desktop GUI</span>
+                </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>Python</span>
+                        <span>Tkinter GUI</span>
+                        <span>Math Animation</span>
+                    </div>
+                    <h4>Python Real-Time Analog Clock</h4>
+                    <p>Desktop graphical user interface application built with Python displaying a live animated analog clock and date using trigonometric math calculations.</p>
+                </div>
+            </div>
+
+            <!-- Project 7 -->
+            <div class="portfolio-card">
+                <div class="portfolio-image-wrap">
+                    <img src="image10.jpg" alt="Game Maker project editor">
+                    <span class="portfolio-category-badge">Game Development</span>
+                </div>
+                <div class="portfolio-body">
+                    <div class="project-tags">
+                        <span>Game Maker</span>
+                        <span>Game Engine</span>
+                        <span>Game Design</span>
+                    </div>
+                    <h4>The Basics of Game Maker</h4>
+                    <p>An introductory game development project exploring how to organize a simple game and work with interactive elements. It helped me understand the fundamentals of creating a game and developing an idea into an interactive experience.</p>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Bagian Contact (Hubungi Saya) -->
     <section class="contact" id="contact">
+        <span class="section-tag center">GET IN TOUCH</span>
         <h2 class="heading">Contact <span>Me!</span></h2>
-        <!-- Ubah dari <form action="#"> menjadi seperti ini: -->
-<form id="contact-form">
-    <div class="input-box">
-        <input type="text" placeholder="Full Name" required>
-        <input type="email" placeholder="Email Address" required>
-    </div>
-    <div class="input-box">
-        <input type="number" placeholder="Mobile Number">
-        <input type="text" placeholder="Email Subject">
-    </div>
-    <textarea name="" id="" cols="30" rows="10" placeholder="Your Message" required></textarea>
-    <input type="submit" value="Send Message" class="btn">
-</form>
+        
+        <div class="contact-wrapper">
+            <div class="contact-info">
+                <h3>Let's Connect & Collaborate</h3>
+                <p>Feel free to reach out for project collaborations, software inquiries, or internship opportunities. I am always open to discussing new challenges and ideas.</p>
 
+                <div class="contact-card-list">
+                    <div class="contact-detail-card">
+                        <div class="contact-icon"><i class='bx bx-map'></i></div>
+                        <div>
+                            <strong>Location</strong>
+                            <span>Sidoarjo, East Java, Indonesia</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail-card">
+                        <div class="contact-icon"><i class='bx bx-envelope'></i></div>
+                        <div>
+                            <strong>Email Inquiries</strong>
+                            <span>Available via Contact Form</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail-card">
+                        <div class="contact-icon"><i class='bx bx-briefcase'></i></div>
+                        <div>
+                            <strong>Status</strong>
+                            <span>Open for Projects & Internships</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-social-links">
+                    <a href="https://www.linkedin.com/in/dafa-fairuz-rahman-a5b909421?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener" aria-label="LinkedIn"><i class='bx bxl-linkedin'></i></a>
+                    <a href="https://www.instagram.com/df386683?stkn=MWU2M2d5dHN6ZDJmYw==" target="_blank" rel="noopener" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="https://x.com/Someone1fx" target="_blank" rel="noopener" aria-label="Twitter / X"><i class='bx bxl-twitter'></i></a>
+                    <a href="https://www.facebook.com/share/1B4ZqGwBiX/" target="_blank" rel="noopener" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                </div>
+            </div>
+
+            <form id="contact-form" class="contact-form">
+                <div class="input-box">
+                    <div class="input-field">
+                        <i class='bx bx-user'></i>
+                        <input type="text" placeholder="Full Name" required>
+                    </div>
+                    <div class="input-field">
+                        <i class='bx bx-envelope'></i>
+                        <input type="email" placeholder="Email Address" required>
+                    </div>
+                </div>
+                <div class="input-box">
+                    <div class="input-field">
+                        <i class='bx bx-phone'></i>
+                        <input type="tel" placeholder="Mobile Number">
+                    </div>
+                    <div class="input-field">
+                        <i class='bx bx-edit'></i>
+                        <input type="text" placeholder="Subject">
+                    </div>
+                </div>
+                <div class="input-field textarea-field">
+                    <i class='bx bx-message-square-detail'></i>
+                    <textarea cols="30" rows="7" placeholder="Your Message" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary submit-btn">
+                    <span>Send Message</span>
+                    <i class='bx bx-send'></i>
+                </button>
+            </form>
+        </div>
     </section>
 
     <!-- Bagian Footer -->
     <footer class="footer">
-        <div class="footer-text">
-            <p>Copyright &copy; 2026 by Dafa Ekskluisvely | Anty Copyright</p>
-        </div>
-        <div class="footer-iconTop">
-            <a href="#home"><i class='bx bx-up-arrow-alt'></i></a>
+        <div class="footer-content">
+            <a href="#home" class="footer-logo">
+                <span class="logo-bracket">&lt;</span>Dafa<span class="logo-accent">.dev</span><span class="logo-bracket">/&gt;</span>
+            </a>
+            <div class="footer-text">
+                <p>&copy; 2026 <strong>Dafa Fairuz Rahman</strong>. All Rights Reserved.</p>
+                <p class="footer-sub">Crafted with passion, clean code & modern aesthetics.</p>
+            </div>
+            <div class="footer-iconTop">
+                <a href="#home" aria-label="Back to top"><i class='bx bx-up-arrow-alt'></i></a>
+            </div>
         </div>
     </footer>
 
