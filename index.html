@@ -28,9 +28,17 @@
                 root.dataset.userBackground = 'true';
                 root.dataset.customColors = 'true';
             }
+            const isLightScheme = root.dataset.scheme === 'light';
             const savedBackgroundEffect = localStorage.getItem('portfolio-background-effect');
-            if (savedBackgroundEffect === 'black-hole' || savedBackgroundEffect === 'video') {
+            if (!isLightScheme && (savedBackgroundEffect === 'black-hole' || savedBackgroundEffect === 'video')) {
                 root.dataset.backgroundEffect = savedBackgroundEffect;
+            } else {
+                delete root.dataset.backgroundEffect;
+            }
+            if (isLightScheme || localStorage.getItem('portfolio-meteor-shower') === 'false') {
+                root.dataset.meteorShower = 'false';
+            } else {
+                root.dataset.meteorShower = 'true';
             }
             if (localStorage.getItem('services-rainbow-icons') === 'true') {
                 root.dataset.serviceIcons = 'rainbow';
@@ -64,6 +72,11 @@
     <video id="background-video" aria-hidden="true" autoplay muted loop playsinline preload="metadata" hidden>
         <source src="352344_medium.mp4" type="video/mp4">
     </video>
+    <div class="background-scrim" aria-hidden="true"></div>
+    <canvas id="meteor-canvas" aria-hidden="true"></canvas>
+
+    <!-- Star-Chart Blueprint / Constellation Canvas (for Light / White Background) -->
+    <canvas id="constellation-canvas" aria-hidden="true"></canvas>
 
     <!-- Ambient Background Blobs -->
     <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
@@ -95,13 +108,13 @@
             </label>
 
             <details class="background-menu" id="background-menu">
-                <summary aria-label="Customize page background" title="Customize page background">
+                <summary aria-label="Customize page atmosphere" title="Customize page atmosphere">
                     <i class='bx bx-layer' aria-hidden="true"></i>
                     <span>Background</span>
                     <i class='bx bx-chevron-down background-menu-chevron' aria-hidden="true"></i>
                 </summary>
                 <div class="background-menu-panel">
-                    <p class="background-menu-title">Choose a background</p>
+                    <p class="background-menu-title">Choose an atmosphere</p>
                     <div class="background-presets" role="group" aria-label="Background presets">
                         <button type="button" class="background-preset" data-background-preset="#0b0f19" aria-label="Midnight" title="Midnight">
                             <span style="--swatch-color: #0b0f19"></span>
@@ -115,21 +128,36 @@
                         <button type="button" class="background-preset" data-background-preset="#2b1722" aria-label="Rose" title="Rose">
                             <span style="--swatch-color: #2b1722"></span>
                         </button>
-                        <button type="button" class="background-preset" data-background-preset="#f1f5f9" aria-label="Mist" title="Mist">
-                            <span style="--swatch-color: #f1f5f9"></span>
+                        <button type="button" class="background-preset" data-background-preset="#ffffff" aria-label="White" title="White">
+                            <span style="--swatch-color: #ffffff"></span>
                         </button>
                     </div>
-                    <button type="button" class="background-effect-option" id="black-hole-background" aria-pressed="false">
+                        <button type="button" class="background-effect-option" id="black-hole-background" aria-pressed="false">
                         <i class='bx bx-orbit' aria-hidden="true"></i>
-                        <span>3D Black Hole</span>
+                            <span>Deep-space black hole</span>
                         <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="background-effect-option" id="video-background" aria-pressed="false">
+                        <button type="button" class="background-effect-option" id="video-background" aria-pressed="false">
                         <i class='bx bx-film' aria-hidden="true"></i>
-                        <span>Video background</span>
+                            <span>Cinematic night video</span>
                         <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="background-effect-option" id="meteor-shower-toggle" aria-pressed="true">
+                        <i class='bx bx-meteor' aria-hidden="true"></i>
+                            <span>Meteor trails</span>
+                        <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="background-effect-option" id="meteor-event-btn" title="Trigger a random cosmic meteor event">
+                        <i class='bx bx-radar' aria-hidden="true"></i>
+                        <span>Cosmic Event Flurry</span>
+                        <i class='bx bx-play-circle background-effect-check' style="visibility: visible; font-size: 1.6rem;" aria-hidden="true"></i>
                     </button>
                     <p class="background-effect-status" id="background-effect-status" aria-live="polite"></p>
+                    <div class="night-mode-recommendation" id="night-mode-recommendation" role="status" aria-live="polite" hidden>
+                        <i class='bx bx-moon' aria-hidden="true"></i>
+                        <p id="night-mode-recommendation-text"></p>
+                        <button type="button" id="use-dark-mode">Use dark mode</button>
+                    </div>
                     <label class="custom-background-control" for="background-color">
                         <span>Custom color</span>
                         <input id="background-color" type="color" value="#0b0f19" aria-label="Choose custom background color">
@@ -149,9 +177,10 @@
     <!-- Bagian Home (Beranda) -->
     <section class="home" id="home">
         <div class="home-content">
-            <div class="hero-badge">
+            <div class="hero-badge interactive-badge" id="hero-meteor-btn" role="button" tabindex="0" title="Software Engineering • SMK Krian 1" aria-label="Software Engineering student at SMK Krian 1">
                 <span class="badge-dot"></span>
                 <span>Software Engineering • SMK Krian 1</span>
+                <span class="badge-meteor-trigger" title="Make a wish (summon meteor flurry)"><i class='bx bx-meteor'></i> Wish</span>
             </div>
 
             <h3 class="hero-greeting">Hello, It's Me</h3>
@@ -595,6 +624,22 @@
             </div>
         </div>
     </footer>
+ 
+    <!-- Cosmic Meteor Event Toast Notification -->
+    <aside class="meteor-event-toast" id="meteor-event-toast" role="status" aria-live="polite" aria-hidden="true">
+        <div class="toast-icon">
+            <i class='bx bxs-meteor'></i>
+        </div>
+        <div class="toast-body">
+            <div class="toast-badge">Cosmic Event Detected</div>
+            <strong class="toast-title" id="toast-event-title">Perseid Meteor Storm</strong>
+            <span class="toast-desc" id="toast-event-desc">Intense meteor swarm crossing the atmosphere</span>
+        </div>
+        <button type="button" class="toast-close" id="toast-close-btn" aria-label="Dismiss cosmic alert"><i class='bx bx-x'></i></button>
+        <div class="toast-progress">
+            <div class="toast-progress-bar" id="toast-progress-bar"></div>
+        </div>
+    </aside>
 
     <!-- Scroll Reveal JS (Untuk Efek Animasi Muncul) -->
     <script src="https://unpkg.com/scrollreveal"></script>
