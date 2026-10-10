@@ -76,15 +76,12 @@ const backgroundMenu = document.getElementById('background-menu');
 const backgroundColorInput = document.getElementById('background-color');
 const backgroundPresetButtons = Array.from(document.querySelectorAll('[data-background-preset]'));
 const backgroundResetButton = document.getElementById('background-reset');
-const blackHoleBackgroundButton = document.getElementById('black-hole-background');
 const videoBackgroundButton = document.getElementById('video-background');
 const backgroundEffectStatus = document.getElementById('background-effect-status');
-const blackHoleCanvas = document.getElementById('black-hole-canvas');
 const backgroundVideo = document.getElementById('background-video');
 const meteorCanvas = document.getElementById('meteor-canvas');
 const constellationCanvas = document.getElementById('constellation-canvas');
 const meteorShowerToggle = document.getElementById('meteor-shower-toggle');
-const meteorEventBtn = document.getElementById('meteor-event-btn');
 const heroMeteorBtn = document.getElementById('hero-meteor-btn');
 const meteorEventToast = document.getElementById('meteor-event-toast');
 const toastEventTitle = document.getElementById('toast-event-title');
@@ -96,11 +93,6 @@ const backgroundEffectStorageKey = 'portfolio-background-effect';
 const meteorStorageKey = 'portfolio-meteor-shower';
 let meteorShower = null;
 let constellationChart = null;
-let blackHoleRenderState = null;
-let blackHoleLoadPromise = null;
-let blackHoleAnimationFrame = 0;
-let blackHoleResizeHandler = null;
-let blackHolePointerHandler = null;
 const defaultBackgroundByTheme = {
     ocean: { dark: '#0b0f19', light: '#ffffff' },
     forest: { dark: '#08140e', light: '#ffffff' },
@@ -122,27 +114,12 @@ const hideDarkModeRecommendation = () => {
 const stopBackgroundEffect = (clearPreference = true) => {
     const root = document.documentElement;
     delete root.dataset.backgroundEffect;
-    if (blackHoleCanvas) blackHoleCanvas.hidden = true;
     if (backgroundVideo) {
         backgroundVideo.pause();
         backgroundVideo.hidden = true;
     }
-    if (blackHoleBackgroundButton) blackHoleBackgroundButton.setAttribute('aria-pressed', 'false');
     if (videoBackgroundButton) videoBackgroundButton.setAttribute('aria-pressed', 'false');
     if (backgroundEffectStatus) backgroundEffectStatus.textContent = '';
-
-    if (blackHoleAnimationFrame) {
-        cancelAnimationFrame(blackHoleAnimationFrame);
-        blackHoleAnimationFrame = 0;
-    }
-    if (blackHoleResizeHandler) {
-        window.removeEventListener('resize', blackHoleResizeHandler);
-        blackHoleResizeHandler = null;
-    }
-    if (blackHolePointerHandler) {
-        window.removeEventListener('pointermove', blackHolePointerHandler);
-        blackHolePointerHandler = null;
-    }
 
     if (clearPreference) {
         try {
@@ -175,7 +152,7 @@ const applyScheme = (scheme, persist = false, resetCustomBackground = false) => 
         schemeIcon.classList.toggle('bx-moon', !isLight);
     }
 
-    // Automatically stop video/black-hole and disable meteor trails on white/light background
+    // Automatically stop video and disable meteor trails on white/light background
     if (isLight) {
         stopBackgroundEffect(persist);
         if (meteorShower) {
@@ -257,7 +234,7 @@ const applyBackground = (color, persist = false, adjustScheme = true) => {
 
     const isLight = backgroundLuminance(color) > .42;
 
-    // Automatically stop video/black-hole and disable meteor trails on white/light background
+    // Automatically stop video and disable meteor trails on white/light background
     if (isLight) {
         stopBackgroundEffect(persist);
         if (meteorShower) {
@@ -338,145 +315,6 @@ if (backgroundMenu && backgroundColorInput) {
     });
 }
 
-const startBlackHoleBackground = async (persist = true) => {
-    const root = document.documentElement;
-    if (root.dataset.scheme === 'light') {
-        applyScheme('dark', true, true);
-    }
-
-    if (root.dataset.backgroundEffect !== 'black-hole') {
-        stopBackgroundEffect(false);
-    }
-
-    root.dataset.backgroundEffect = 'black-hole';
-    blackHoleCanvas.hidden = false;
-    blackHoleBackgroundButton.setAttribute('aria-pressed', 'true');
-    videoBackgroundButton.setAttribute('aria-pressed', 'false');
-    backgroundVideo.pause();
-    backgroundVideo.hidden = true;
-    backgroundEffectStatus.textContent = 'Loading deep-space scene…';
-    recommendDarkMode('Deep-space visuals are designed for dark mode, where contrast and depth look their best.');
-
-    if (persist) {
-        try {
-            localStorage.setItem(backgroundEffectStorageKey, 'black-hole');
-        } catch {}
-    }
-
-    try {
-        if (!blackHoleLoadPromise) {
-            blackHoleLoadPromise = (async () => {
-                const [THREE, { GLTFLoader }] = await Promise.all([
-                    import('three'),
-                    import('three/addons/loaders/GLTFLoader.js')
-                ]);
-
-                const renderer = new THREE.WebGLRenderer({ canvas: blackHoleCanvas, alpha: true, antialias: true });
-                renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio || 1, 1.75), 2));
-                renderer.setClearColor(0x000000, 0);
-                renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, .1, 100);
-                camera.position.z = window.innerWidth < 768 ? 8.4 : 6.8;
-                scene.add(new THREE.AmbientLight(0x9fc9ff, 1.8));
-
-                const coolLight = new THREE.PointLight(0x48c8ff, 65, 30);
-                coolLight.position.set(-4, 2, 5);
-                scene.add(coolLight);
-
-                const warmLight = new THREE.PointLight(0xff713d, 35, 25);
-                warmLight.position.set(4, -2, 3);
-                scene.add(warmLight);
-
-                const starPositions = new Float32Array(900 * 3);
-                for (let index = 0; index < starPositions.length; index += 3) {
-                    starPositions[index] = (Math.random() - .5) * 48;
-                    starPositions[index + 1] = (Math.random() - .5) * 30;
-                    starPositions[index + 2] = -8 - Math.random() * 28;
-                }
-                const starGeometry = new THREE.BufferGeometry();
-                starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-                const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({
-                    color: 0xb8d9ff,
-                    size: .045,
-                    transparent: true,
-                    opacity: .75,
-                    sizeAttenuation: true
-                }));
-                scene.add(stars);
-
-                const modelGroup = new THREE.Group();
-                scene.add(modelGroup);
-
-                const gltf = await new GLTFLoader().loadAsync(new URL('black_hole.glb', document.baseURI).href);
-                const model = gltf.scene;
-                const bounds = new THREE.Box3().setFromObject(model);
-                const center = bounds.getCenter(new THREE.Vector3());
-                const size = bounds.getSize(new THREE.Vector3());
-                const largestDimension = Math.max(size.x, size.y, size.z) || 1;
-                const scale = 5.2 / largestDimension;
-
-                model.scale.setScalar(scale);
-                model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
-                modelGroup.add(model);
-
-                return { THREE, renderer, scene, camera, modelGroup, stars };
-            })();
-        }
-
-        blackHoleRenderState = await blackHoleLoadPromise;
-        if (root.dataset.backgroundEffect !== 'black-hole') return;
-
-        const { renderer, scene, camera, modelGroup, stars } = blackHoleRenderState;
-        const resize = () => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            camera.aspect = width / height;
-            camera.position.z = width < 768 ? 8.4 : 6.8;
-            camera.updateProjectionMatrix();
-            renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio || 1, 1.75), 2));
-            renderer.setSize(width, height, false);
-        };
-        resize();
-
-        if (!blackHoleResizeHandler) {
-            blackHoleResizeHandler = resize;
-            window.addEventListener('resize', blackHoleResizeHandler, { passive: true });
-        }
-
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            renderer.render(scene, camera);
-        } else {
-            let pointerX = 0;
-            let pointerY = 0;
-            blackHolePointerHandler = event => {
-                pointerX = (event.clientX / window.innerWidth - .5) * .12;
-                pointerY = (event.clientY / window.innerHeight - .5) * .08;
-            };
-            window.addEventListener('pointermove', blackHolePointerHandler, { passive: true });
-
-            const animate = () => {
-                if (root.dataset.backgroundEffect !== 'black-hole') return;
-                blackHoleAnimationFrame = requestAnimationFrame(animate);
-                modelGroup.rotation.y += .0015;
-                modelGroup.rotation.x += (pointerY - modelGroup.rotation.x) * .015;
-                modelGroup.rotation.z += (pointerX - modelGroup.rotation.z) * .015;
-                stars.rotation.y -= .00015;
-                renderer.render(scene, camera);
-            };
-            animate();
-        }
-
-        backgroundEffectStatus.textContent = 'Deep-space scene active.';
-    } catch (error) {
-        console.error('Could not load black_hole.glb background:', error);
-        blackHoleLoadPromise = null;
-        stopBackgroundEffect();
-        backgroundEffectStatus.textContent = 'Could not load 3D background. Open the site through a local server.';
-    }
-};
-
 const startVideoBackground = async (persist = true) => {
     const root = document.documentElement;
     if (root.dataset.scheme === 'light') {
@@ -488,9 +326,7 @@ const startVideoBackground = async (persist = true) => {
     }
 
     root.dataset.backgroundEffect = 'video';
-    blackHoleCanvas.hidden = true;
     videoBackgroundButton.setAttribute('aria-pressed', 'true');
-    blackHoleBackgroundButton.setAttribute('aria-pressed', 'false');
     backgroundVideo.hidden = false;
     backgroundEffectStatus.textContent = 'Loading cinematic video scene…';
     recommendDarkMode('Video backgrounds look more cinematic in dark mode and keep the foreground easy to read.');
@@ -512,21 +348,6 @@ const startVideoBackground = async (persist = true) => {
         backgroundEffectStatus.textContent = 'Could not play the video background.';
     }
 };
-
-if (blackHoleBackgroundButton) {
-    blackHoleBackgroundButton.addEventListener('click', () => {
-        if (document.documentElement.dataset.backgroundEffect === 'black-hole') {
-            stopBackgroundEffect();
-        } else {
-            startBlackHoleBackground();
-        }
-        backgroundMenu.open = true;
-    });
-
-    if (document.documentElement.dataset.backgroundEffect === 'black-hole') {
-        startBlackHoleBackground(false);
-    }
-}
 
 if (videoBackgroundButton) {
     videoBackgroundButton.addEventListener('click', () => {
@@ -618,12 +439,6 @@ class MeteorShower {
             this.summonMeteor(e.clientX, e.clientY, true);
         });
 
-        window.addEventListener('keydown', (e) => {
-            if ((e.key === 'm' || e.key === 'M') && !e.target.matches('input, textarea')) {
-                this.triggerRandomCosmicEvent();
-            }
-        });
-
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 this.pause();
@@ -638,7 +453,8 @@ class MeteorShower {
             }
         });
 
-        this.scheduleNextCosmicEvent(15000 + Math.random() * 8000);
+        // Rare initial delay for cosmic meteor events (2.5 - 4.5 minutes)
+        this.scheduleNextCosmicEvent(150000 + Math.random() * 120000);
 
         if (this.active && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             this.start();
@@ -924,7 +740,8 @@ class MeteorShower {
         if (this.cosmicEventTimeout) {
             clearTimeout(this.cosmicEventTimeout);
         }
-        const delay = customDelay !== null ? customDelay : 32000 + Math.random() * 26000;
+        // Truly rare event timing: repeats every 4 to 8 minutes
+        const delay = customDelay !== null ? customDelay : 240000 + Math.random() * 240000;
         this.cosmicEventTimeout = setTimeout(() => {
             if (this.active && !document.hidden) {
                 this.triggerRandomCosmicEvent();
@@ -1056,7 +873,7 @@ class MeteorShower {
             // Real-time Collision Detection with UI text / cards / buttons / boxes
             if (m.canCollide && m.age > 0.08 && m.x > 10 && m.x < this.width - 10 && m.y > 65 && m.y < this.height - 10) {
                 const hitEl = document.elementFromPoint(m.x, m.y);
-                if (hitEl && !hitEl.closest('.header, .background-menu, .meteor-event-toast, #meteor-canvas, #black-hole-canvas, #background-video')) {
+                if (hitEl && !hitEl.closest('.header, .background-menu, .meteor-event-toast, #meteor-canvas, #background-video')) {
                     const targetBox = hitEl.closest(
                         '.stat-card, .btn, .hero-name, .hero-greeting, .hero-role, .heading, .section-tag, ' +
                         '.about-img-card, .about-card-badge, .highlight-item, .service-card, .services-box, ' +
@@ -1305,25 +1122,64 @@ if (meteorShowerToggle && meteorShower) {
     });
 }
 
-if (meteorEventBtn && meteorShower) {
-    meteorEventBtn.addEventListener('click', () => {
-        meteorShower.triggerRandomCosmicEvent();
-        recommendDarkMode('Meteor events are recommended in dark mode for a clearer night-sky effect.');
-        backgroundMenu.open = true;
-    });
-}
-
 if (heroMeteorBtn && meteorShower) {
-    heroMeteorBtn.addEventListener('click', (e) => {
+    let wishClickCount = 0;
+    let requiredWishClicks = Math.floor(Math.random() * 4) + 4; // 4 to 7 clicks required randomly
+    let lastWishClickTime = 0;
+    let wishResetTimer = 0;
+
+    const handleWishAction = (e) => {
         if (document.documentElement.dataset.scheme === 'light' || !meteorShower.active) return;
+        const now = Date.now();
+        if (now - lastWishClickTime < 280) return; // Prevent spam-clicking within 280ms
+        lastWishClickTime = now;
+
+        // Reset click progress if idle for more than 14 seconds
+        clearTimeout(wishResetTimer);
+        wishResetTimer = setTimeout(() => {
+            wishClickCount = 0;
+            requiredWishClicks = Math.floor(Math.random() * 4) + 4;
+        }, 14000);
+
+        // Visual feedback on the wish button badge
+        heroMeteorBtn.classList.remove('wish-pulsing');
+        void heroMeteorBtn.offsetWidth;
+        heroMeteorBtn.classList.add('wish-pulsing');
+        setTimeout(() => heroMeteorBtn.classList.remove('wish-pulsing'), 400);
+
+        // Every click shoots a single graceful wishing meteor across the dark sky
+        meteorShower.spawnMeteor({
+            x: Math.random() * (window.innerWidth * 0.7),
+            y: -20 - Math.random() * 30,
+            speed: 1250 + Math.random() * 500,
+            length: 150 + Math.random() * 120,
+            canCollide: false
+        });
+
+        wishClickCount++;
+
+        // Random chance once the minimum required clicks are satisfied
+        const hasReachedClicks = wishClickCount >= requiredWishClicks;
+        const cosmicLuck = Math.random() < 0.55;
+
+        if (hasReachedClicks && (cosmicLuck || wishClickCount >= requiredWishClicks + 3)) {
+            // A rare astronomical alignment! Cosmic event triggered!
+            meteorShower.triggerRandomCosmicEvent();
+            wishClickCount = 0;
+            requiredWishClicks = Math.floor(Math.random() * 5) + 5; // next time 5 to 9 clicks
+            clearTimeout(wishResetTimer);
+        }
+    };
+
+    heroMeteorBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        meteorShower.triggerRandomCosmicEvent();
+        handleWishAction(e);
     });
+
     heroMeteorBtn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-            if (document.documentElement.dataset.scheme === 'light' || !meteorShower.active) return;
             e.preventDefault();
-            meteorShower.triggerRandomCosmicEvent();
+            handleWishAction(e);
         }
     });
 }
