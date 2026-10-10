@@ -30,7 +30,7 @@
             }
             const isLightScheme = root.dataset.scheme === 'light';
             const savedBackgroundEffect = localStorage.getItem('portfolio-background-effect');
-            if (!isLightScheme && (savedBackgroundEffect === 'black-hole' || savedBackgroundEffect === 'video')) {
+            if (!isLightScheme && savedBackgroundEffect === 'video') {
                 root.dataset.backgroundEffect = savedBackgroundEffect;
             } else {
                 delete root.dataset.backgroundEffect;
@@ -45,15 +45,6 @@
             }
         } catch {}
     </script>
-
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
-            }
-        }
-    </script>
     
     <!-- Box Icons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -64,11 +55,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Link ke file CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
-    <canvas id="black-hole-canvas" aria-hidden="true" hidden></canvas>
     <video id="background-video" aria-hidden="true" autoplay muted loop playsinline preload="metadata" hidden>
         <source src="352344_medium.mp4" type="video/mp4">
     </video>
@@ -132,12 +122,7 @@
                             <span style="--swatch-color: #ffffff"></span>
                         </button>
                     </div>
-                        <button type="button" class="background-effect-option" id="black-hole-background" aria-pressed="false">
-                        <i class='bx bx-orbit' aria-hidden="true"></i>
-                            <span>Deep-space black hole</span>
-                        <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
-                    </button>
-                        <button type="button" class="background-effect-option" id="video-background" aria-pressed="false">
+                    <button type="button" class="background-effect-option" id="video-background" aria-pressed="false">
                         <i class='bx bx-film' aria-hidden="true"></i>
                             <span>Cinematic night video</span>
                         <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
@@ -146,11 +131,6 @@
                         <i class='bx bx-meteor' aria-hidden="true"></i>
                             <span>Meteor trails</span>
                         <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="background-effect-option" id="meteor-event-btn" title="Trigger a random cosmic meteor event">
-                        <i class='bx bx-radar' aria-hidden="true"></i>
-                        <span>Cosmic Event Flurry</span>
-                        <i class='bx bx-play-circle background-effect-check' style="visibility: visible; font-size: 1.6rem;" aria-hidden="true"></i>
                     </button>
                     <p class="background-effect-status" id="background-effect-status" aria-live="polite"></p>
                     <div class="night-mode-recommendation" id="night-mode-recommendation" role="status" aria-live="polite" hidden>
@@ -648,6 +628,6 @@
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
     
     <!-- Link ke file Custom JavaScript -->
-    <script src="script.js"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
