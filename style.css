@@ -75,16 +75,65 @@
 }
 
 :root[data-scheme="light"] {
-    --bg-color: #f8fafc;
-    --second-bg-color: #edf2f7;
-    --card-bg: rgba(255, 255, 255, 0.85);
+    --bg-color: #ffffff;
+    --second-bg-color: #f8fafc;
+    --card-bg: #ffffff;
     --card-border: rgba(0, 0, 0, 0.08);
-    --glass-nav: rgba(248, 250, 252, 0.9);
+    --glass-nav: rgba(255, 255, 255, 0.96);
     --text-color: #0f172a;
     --text-muted: #475569;
     --text-rgb: 15, 23, 42;
-    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.07);
+    --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
     color-scheme: light;
+}
+
+:root[data-scheme="light"][data-user-background="true"] {
+    --card-bg: #ffffff;
+    --glass-nav: rgba(255, 255, 255, 0.96);
+}
+
+/* Light mode: pure solid white background, completely hide video, black hole, meteors, and bg glow */
+:root[data-scheme="light"] body {
+    background-color: var(--bg-color) !important;
+}
+
+:root[data-scheme="light"] body > section,
+:root[data-scheme="light"] body > .footer,
+:root[data-scheme="light"] .skills,
+:root[data-scheme="light"] .portfolio {
+    background: transparent !important;
+    opacity: 1 !important;
+}
+
+:root[data-scheme="light"] #black-hole-canvas,
+:root[data-scheme="light"] #background-video,
+:root[data-scheme="light"] .background-scrim,
+:root[data-scheme="light"] #meteor-canvas,
+:root[data-scheme="light"] .bg-glow {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* ==========================================================================
+   ASTRONOMICAL STAR-CHART BLUEPRINT / CONSTELLATIONS (LIGHT MODE)
+   ========================================================================== */
+#constellation-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+:root[data-scheme="light"] #constellation-canvas {
+    display: block;
+}
+
+:root:not([data-scheme="light"]) #constellation-canvas {
+    display: none !important;
 }
 
 :root[data-user-background="true"] {
@@ -93,6 +142,21 @@
     --card-bg: color-mix(in srgb, var(--user-bg-color) 82%, transparent);
     --glass-nav: color-mix(in srgb, var(--user-bg-color) 91%, transparent);
     --card-border: color-mix(in srgb, var(--text-color) 13%, transparent);
+}
+
+/* Space effects always use a dark, high-contrast surface. This keeps a black
+   hole or night video from being visually paired with a bright page canvas. */
+:root[data-background-effect] {
+    --bg-color: #050816;
+    --second-bg-color: rgba(10, 16, 36, 0.82);
+    --card-bg: rgba(12, 20, 43, 0.72);
+    --card-border: rgba(148, 191, 255, 0.18);
+    --glass-nav: rgba(5, 8, 22, 0.74);
+    --text-color: #edf6ff;
+    --text-muted: #a9bad6;
+    --text-rgb: 237, 246, 255;
+    --shadow-card: 0 24px 60px -28px rgba(0, 0, 0, 0.88);
+    color-scheme: dark;
 }
 
 #black-hole-canvas {
@@ -114,8 +178,32 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: .82;
+    opacity: .92;
+    filter: saturate(1.02) contrast(1.1) brightness(.94);
     pointer-events: none;
+}
+
+.background-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .45s ease, background .45s ease;
+}
+
+:root[data-background-effect="black-hole"] .background-scrim {
+    opacity: 1;
+    background:
+        radial-gradient(circle at 50% 42%, transparent 0 12%, rgba(3, 6, 18, .1) 31%, rgba(3, 6, 18, .68) 100%),
+        linear-gradient(120deg, rgba(2, 8, 25, .52), rgba(20, 7, 43, .26));
+}
+
+:root[data-background-effect="video"] .background-scrim {
+    opacity: 1;
+    background:
+        radial-gradient(circle at 78% 10%, rgba(var(--accent-rgb), .14), transparent 36%),
+        linear-gradient(135deg, rgba(3, 8, 23, .52), rgba(8, 13, 34, .25) 52%, rgba(3, 7, 20, .56));
 }
 
 #background-video[hidden] {
@@ -124,6 +212,31 @@
 
 #black-hole-canvas[hidden] {
     display: none;
+}
+
+#meteor-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+#meteor-canvas[hidden],
+:root[data-meteor-shower="false"] #meteor-canvas {
+    display: none;
+}
+
+:root[data-scheme="light"] #meteor-canvas {
+    display: none !important;
+}
+
+:root[data-background-effect] #meteor-canvas {
+    mix-blend-mode: screen;
+    opacity: 1;
 }
 
 :root[data-background-effect] .bg-glow {
@@ -144,7 +257,7 @@
 
 :root[data-background-effect="video"] body > section,
 :root[data-background-effect="video"] body > .footer {
-    background: color-mix(in srgb, var(--bg-color) 58%, transparent);
+    background: color-mix(in srgb, var(--bg-color) 46%, transparent);
 }
 
 :root[data-scheme="light"][data-theme="ocean"] {
@@ -264,6 +377,7 @@ section {
     min-height: 100vh;
     padding: 12rem 9% 4rem;
     position: relative;
+    z-index: 1;
 }
 
 /* ==========================================================================
@@ -669,6 +783,51 @@ section {
     font-size: 1.1rem;
 }
 
+.night-mode-recommendation {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: .65rem .8rem;
+    padding: 1rem;
+    border: 1px solid rgba(96, 165, 250, .36);
+    border-radius: .9rem;
+    background: linear-gradient(135deg, rgba(30, 58, 138, .18), rgba(15, 23, 42, .2));
+    color: var(--text-color);
+}
+
+.night-mode-recommendation[hidden] {
+    display: none;
+}
+
+.night-mode-recommendation > i {
+    color: #93c5fd;
+    font-size: 1.8rem;
+}
+
+.night-mode-recommendation p {
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    line-height: 1.45;
+}
+
+.night-mode-recommendation button {
+    grid-column: 2;
+    justify-self: start;
+    padding: .55rem .9rem;
+    border: 1px solid rgba(147, 197, 253, .55);
+    border-radius: .6rem;
+    background: rgba(15, 23, 42, .36);
+    color: #dbeafe;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.night-mode-recommendation button:hover {
+    background: rgba(59, 130, 246, .3);
+}
+
 .background-menu-title {
     color: var(--text-color);
     font-size: 1.4rem;
@@ -791,6 +950,77 @@ section {
     background: var(--main-color);
     box-shadow: 0 0 10px var(--main-color);
     animation: blinkDot 2s ease-in-out infinite;
+}
+
+.hero-badge.interactive-badge {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-badge.interactive-badge:hover {
+    background: rgba(var(--accent-rgb), 0.16);
+    border-color: var(--main-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 18px rgba(var(--accent-rgb), 0.28);
+}
+
+.hero-badge.interactive-badge:focus-visible {
+    outline: 2px solid var(--main-color);
+    outline-offset: 3px;
+}
+
+.hero-badge.interactive-badge:active {
+    transform: scale(0.97) translateY(0);
+}
+
+.badge-meteor-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: 0.6rem;
+    padding: 0.2rem 0.8rem;
+    border-radius: 2rem;
+    background: rgba(var(--accent-rgb), 0.18);
+    font-size: 1.15rem;
+    color: var(--text-color);
+    transition: all 0.25s ease;
+}
+
+.hero-badge.interactive-badge:hover .badge-meteor-trigger {
+    background: var(--main-color);
+    color: var(--bg-color);
+}
+
+.badge-meteor-trigger i {
+    font-size: 1.3rem;
+    animation: meteorTwinkle 2s ease-in-out infinite;
+}
+
+/* Hide Wish button on light/white background and when meteor shower is off */
+:root[data-scheme="light"] .badge-meteor-trigger,
+:root[data-meteor-shower="false"] .badge-meteor-trigger {
+    display: none !important;
+}
+
+:root[data-scheme="light"] .hero-badge.interactive-badge,
+:root[data-meteor-shower="false"] .hero-badge.interactive-badge {
+    cursor: default !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+:root[data-scheme="light"] .hero-badge.interactive-badge:hover,
+:root[data-meteor-shower="false"] .hero-badge.interactive-badge:hover {
+    background: rgba(var(--accent-rgb), 0.08) !important;
+    border-color: rgba(var(--accent-rgb), 0.2) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+@keyframes meteorTwinkle {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(-15deg) scale(1.15); }
 }
 
 @keyframes blinkDot {
@@ -2047,6 +2277,367 @@ section {
     .footer-content {
         flex-direction: column;
         gap: 2rem;
+    }
+}
+
+/* ==========================================================================
+   METEOR COLLISION IMPACT & COSMIC EVENT HUD
+   ========================================================================== */
+@keyframes meteorImpactShake {
+    0% {
+        transform: scale(1);
+    }
+    18% {
+        transform: scale(1.028) translateY(-3px);
+        filter: brightness(1.4) drop-shadow(0 0 22px rgba(var(--accent-rgb), 0.9));
+    }
+    40% {
+        transform: scale(0.985) translateY(1.5px);
+        filter: brightness(1.15) drop-shadow(0 0 12px rgba(var(--accent-rgb), 0.6));
+    }
+    70% {
+        transform: scale(1.01);
+    }
+    100% {
+        transform: scale(1);
+        filter: none;
+    }
+}
+
+.meteor-impacted {
+    animation: meteorImpactShake 0.48s cubic-bezier(0.2, 0.9, 0.3, 1) !important;
+    position: relative;
+}
+
+/* Fiery Burning / Scorch Effect on Hit Elements */
+@keyframes fireFlicker {
+    0% {
+        box-shadow: 
+            0 0 20px rgba(255, 75, 0, 0.85),
+            0 0 45px rgba(255, 140, 0, 0.6),
+            inset 0 0 15px rgba(255, 60, 0, 0.45);
+        border-color: #ff5722 !important;
+        filter: brightness(1.22) contrast(1.15);
+    }
+    25% {
+        box-shadow: 
+            0 -4px 28px rgba(255, 95, 0, 0.95),
+            0 -8px 55px rgba(255, 170, 0, 0.7),
+            inset 0 -2px 22px rgba(255, 80, 0, 0.55);
+        border-color: #ff9800 !important;
+        filter: brightness(1.32) contrast(1.2);
+    }
+    50% {
+        box-shadow: 
+            0 -2px 18px rgba(245, 50, 0, 0.8),
+            0 -5px 40px rgba(255, 130, 0, 0.55),
+            inset 0 0 12px rgba(230, 40, 0, 0.4);
+        border-color: #f44336 !important;
+        filter: brightness(1.18) contrast(1.1);
+    }
+    75% {
+        box-shadow: 
+            0 -5px 32px rgba(255, 110, 0, 0.9),
+            0 -10px 60px rgba(255, 185, 0, 0.65),
+            inset 0 -3px 25px rgba(255, 90, 0, 0.5);
+        border-color: #ffab00 !important;
+        filter: brightness(1.28) contrast(1.2);
+    }
+    100% {
+        box-shadow: 
+            0 0 16px rgba(200, 30, 0, 0.5),
+            0 0 30px rgba(220, 60, 0, 0.3),
+            inset 0 0 8px rgba(180, 20, 0, 0.2);
+        border-color: #d32f2f !important;
+        filter: brightness(1.08) contrast(1.05);
+    }
+}
+
+@keyframes flameAuraPulse {
+    0% {
+        opacity: 0.6;
+        transform: scale(0.995);
+    }
+    100% {
+        opacity: 0.95;
+        transform: scale(1.02);
+    }
+}
+
+.meteor-burning {
+    animation: fireFlicker 0.4s infinite alternate ease-in-out !important;
+    position: relative !important;
+    z-index: 5 !important;
+    transition: box-shadow 0.6s ease, border-color 0.6s ease, filter 0.6s ease !important;
+}
+
+.meteor-burning::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255, 110, 0, 0.4) 0%, rgba(255, 45, 0, 0.2) 50%, transparent 80%);
+    pointer-events: none;
+    z-index: 1;
+    animation: flameAuraPulse 0.35s infinite alternate ease-in-out;
+}
+
+.meteor-burning,
+.meteor-burning *:not(img):not(i):not(svg) {
+    text-shadow: 
+        0 -2px 8px rgba(255, 85, 0, 0.9),
+        0 -4px 16px rgba(255, 150, 0, 0.75),
+        0 -7px 22px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* ==========================================================================
+   LIGHT MODE ADAPTATIONS (METEOR COLLISION, BURNING & TOAST)
+   ========================================================================== */
+:root[data-scheme="light"] .meteor-impacted {
+    animation: meteorImpactShakeLight 0.48s cubic-bezier(0.2, 0.9, 0.3, 1) !important;
+}
+
+@keyframes meteorImpactShakeLight {
+    0% {
+        transform: scale(1);
+    }
+    18% {
+        transform: scale(1.02) translateY(-2px);
+        box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.35), 0 0 12px rgba(var(--accent-rgb), 0.25);
+        border-color: var(--main-color) !important;
+        filter: none !important;
+    }
+    40% {
+        transform: scale(0.99) translateY(1px);
+    }
+    70% {
+        transform: scale(1.008);
+    }
+    100% {
+        transform: scale(1);
+        filter: none;
+    }
+}
+
+:root[data-scheme="light"] .meteor-burning {
+    animation: fireFlickerLight 0.45s infinite alternate ease-in-out !important;
+    background: color-mix(in srgb, var(--card-bg) 85%, #ffedd5) !important;
+    border-color: #ea580c !important;
+    filter: none !important;
+}
+
+@keyframes fireFlickerLight {
+    0% {
+        box-shadow: 
+            0 4px 18px rgba(234, 88, 12, 0.35),
+            0 0 10px rgba(220, 38, 38, 0.2),
+            inset 0 0 10px rgba(254, 215, 170, 0.5);
+        border-color: #ea580c !important;
+    }
+    50% {
+        box-shadow: 
+            0 6px 26px rgba(249, 115, 22, 0.45),
+            0 0 16px rgba(234, 88, 12, 0.28),
+            inset 0 -2px 14px rgba(253, 186, 116, 0.6);
+        border-color: #f97316 !important;
+    }
+    100% {
+        box-shadow: 
+            0 3px 14px rgba(220, 38, 38, 0.3),
+            0 0 8px rgba(185, 28, 28, 0.18),
+            inset 0 0 8px rgba(254, 205, 160, 0.4);
+        border-color: #dc2626 !important;
+    }
+}
+
+:root[data-scheme="light"] .meteor-burning::before {
+    background: radial-gradient(ellipse at 50% 100%, rgba(249, 115, 22, 0.18) 0%, rgba(234, 88, 12, 0.08) 50%, transparent 80%);
+}
+
+:root[data-scheme="light"] .meteor-burning,
+:root[data-scheme="light"] .meteor-burning *:not(img):not(i):not(svg) {
+    text-shadow: none !important;
+    color: #1e1b18 !important;
+}
+
+:root[data-scheme="light"] .meteor-event-toast {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.12), 0 2px 10px rgba(var(--accent-rgb), 0.2);
+    color: #0f172a;
+}
+
+:root[data-scheme="light"] .toast-title {
+    color: #0f172a;
+}
+
+:root[data-scheme="light"] .toast-desc {
+    color: #475569;
+}
+
+:root[data-scheme="light"] .toast-icon {
+    background: rgba(var(--accent-rgb), 0.12);
+    border-color: rgba(var(--accent-rgb), 0.25);
+    color: var(--main-color);
+}
+
+:root[data-scheme="light"] .toast-close {
+    color: #64748b;
+}
+
+:root[data-scheme="light"] .toast-close:hover {
+    color: #0f172a;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Cosmic Event HUD Toast */
+.meteor-event-toast {
+    position: fixed;
+    bottom: 2.8rem;
+    right: 2.8rem;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    max-width: min(44rem, calc(100vw - 3.2rem));
+    padding: 1.4rem 1.8rem;
+    border-radius: 1.6rem;
+    background: color-mix(in srgb, var(--second-bg-color) 88%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.45), 0 0 25px rgba(var(--accent-rgb), 0.2);
+    color: var(--text-color);
+    overflow: hidden;
+    transform: translateY(130%) scale(0.92);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.meteor-event-toast.show {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 4.4rem;
+    height: 4.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1.2rem;
+    background: rgba(var(--accent-rgb), 0.15);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    color: var(--main-color);
+    font-size: 2.4rem;
+    animation: toastIconPulse 2s infinite ease-in-out;
+}
+
+@keyframes toastIconPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
+    }
+    50% {
+        transform: scale(1.08) rotate(-8deg);
+        box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5);
+    }
+}
+
+.toast-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.toast-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--main-color);
+}
+
+.toast-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--main-color);
+    box-shadow: 0 0 6px var(--main-color);
+    animation: blinkDot 1.5s infinite;
+}
+
+.toast-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--text-color);
+    line-height: 1.25;
+}
+
+.toast-desc {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.toast-close:hover {
+    color: var(--text-color);
+    background: rgba(var(--text-rgb), 0.1);
+}
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(var(--accent-rgb), 0.15);
+}
+
+.toast-progress-bar {
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-1);
+    transform-origin: left;
+    transform: scaleX(1);
+    transition: transform 5s linear;
+}
+
+.meteor-event-toast.show .toast-progress-bar {
+    transform: scaleX(0);
+}
+
+@media (max-width: 600px) {
+    .meteor-event-toast {
+        bottom: 1.6rem;
+        right: 1.6rem;
+        left: 1.6rem;
+        max-width: none;
     }
 }
 
