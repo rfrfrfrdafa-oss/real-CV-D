@@ -82,6 +82,7 @@ const backgroundEffectStatus = document.getElementById('background-effect-status
 const blackHoleCanvas = document.getElementById('black-hole-canvas');
 const backgroundVideo = document.getElementById('background-video');
 const meteorCanvas = document.getElementById('meteor-canvas');
+const constellationCanvas = document.getElementById('constellation-canvas');
 const meteorShowerToggle = document.getElementById('meteor-shower-toggle');
 const meteorEventBtn = document.getElementById('meteor-event-btn');
 const heroMeteorBtn = document.getElementById('hero-meteor-btn');
@@ -94,6 +95,7 @@ const backgroundStorageKey = 'portfolio-background';
 const backgroundEffectStorageKey = 'portfolio-background-effect';
 const meteorStorageKey = 'portfolio-meteor-shower';
 let meteorShower = null;
+let constellationChart = null;
 let blackHoleRenderState = null;
 let blackHoleLoadPromise = null;
 let blackHoleAnimationFrame = 0;
@@ -183,6 +185,13 @@ const applyScheme = (scheme, persist = false, resetCustomBackground = false) => 
         }
         if (meteorShowerToggle) {
             meteorShowerToggle.setAttribute('aria-pressed', 'false');
+        }
+        if (constellationChart) {
+            constellationChart.start();
+        }
+    } else {
+        if (constellationChart) {
+            constellationChart.stop();
         }
     }
 
@@ -304,7 +313,7 @@ if (backgroundMenu && backgroundColorInput) {
     });
 
     backgroundResetButton.addEventListener('click', () => {
-            const root = document.documentElement;
+        const root = document.documentElement;
         stopBackgroundEffect();
         root.style.removeProperty('--user-bg-color');
         delete root.dataset.userBackground;
@@ -1306,15 +1315,15 @@ if (meteorEventBtn && meteorShower) {
 
 if (heroMeteorBtn && meteorShower) {
     heroMeteorBtn.addEventListener('click', (e) => {
+        if (document.documentElement.dataset.scheme === 'light' || !meteorShower.active) return;
         e.stopPropagation();
         meteorShower.triggerRandomCosmicEvent();
-        recommendDarkMode('Meteor events are recommended in dark mode for a clearer night-sky effect.');
     });
     heroMeteorBtn.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+            if (document.documentElement.dataset.scheme === 'light' || !meteorShower.active) return;
             e.preventDefault();
             meteorShower.triggerRandomCosmicEvent();
-            recommendDarkMode('Meteor events are recommended in dark mode for a clearer night-sky effect.');
         }
     });
 }
@@ -1517,3 +1526,299 @@ if (contactForm) {
         modalBtn.focus();
     });
 }
+
+/*==================== Astronomical Star-Chart Blueprint / Constellations (Light Mode) ====================*/
+class ConstellationStarChart {
+    constructor(canvas) {
+        if (!canvas) return;
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        if (!this.ctx) return;
+
+        this.stars = [];
+        this.rafId = 0;
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.lastTime = performance.now();
+        this.active = false;
+        this.pointer = { x: -1000, y: -1000, active: false };
+
+        this.init();
+    }
+
+    getThemeAccent() {
+        try {
+            const root = document.documentElement;
+            const style = getComputedStyle(root);
+            const rgbStr = style.getPropertyValue('--accent-rgb').trim();
+            if (rgbStr) {
+                const parts = rgbStr.split(',').map(s => parseInt(s.trim(), 10));
+                if (parts.length === 3 && parts.every(n => !isNaN(n))) {
+                    return parts;
+                }
+            }
+        } catch {}
+        return [0, 229, 255];
+    }
+
+    init() {
+        this.resize();
+        window.addEventListener('resize', () => this.resize(), { passive: true });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!this.active) return;
+            this.pointer.x = e.clientX;
+            this.pointer.y = e.clientY;
+            this.pointer.active = true;
+        }, { passive: true });
+
+        window.addEventListener('pointerleave', () => {
+            this.pointer.active = false;
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (this.rafId) {
+                    cancelAnimationFrame(this.rafId);
+                    this.rafId = 0;
+                }
+            } else if (this.active && document.documentElement.dataset.scheme === 'light') {
+                this.lastTime = performance.now();
+                this.start();
+            }
+        });
+    }
+
+    resize() {
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = Math.round(this.width * this.dpr);
+        this.canvas.height = Math.round(this.height * this.dpr);
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
+        this.initStars();
+        if (this.active) {
+            this.draw();
+        }
+    }
+
+    initStars() {
+        this.stars = [];
+        const area = this.width * this.height;
+        const count = Math.max(30, Math.min(88, Math.floor(area / 20800)));
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        for (let i = 0; i < count; i++) {
+            const isAnchor = Math.random() < 0.2;
+            const speed = reducedMotion ? 0 : 7 + Math.random() * 12;
+            const angle = Math.random() * Math.PI * 2;
+            this.stars.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                radius: isAnchor ? 3.0 + Math.random() * 0.85 : 1.6 + Math.random() * 1.0,
+                baseAlpha: isAnchor ? 0.75 + Math.random() * 0.2 : 0.4 + Math.random() * 0.35,
+                twinkleSpeed: 1.2 + Math.random() * 2.2,
+                twinklePhase: Math.random() * Math.PI * 2,
+                isAnchor,
+                reticleRadius: isAnchor ? 8.5 + Math.random() * 3.5 : 0
+            });
+        }
+    }
+
+    start() {
+        this.active = true;
+        if (this.rafId) return;
+        this.lastTime = performance.now();
+
+        const loop = (currentTime) => {
+            if (!this.active || document.documentElement.dataset.scheme !== 'light') {
+                this.stop();
+                return;
+            }
+
+            const dt = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+            this.lastTime = currentTime;
+
+            this.update(dt);
+            this.draw(currentTime);
+
+            this.rafId = requestAnimationFrame(loop);
+        };
+
+        this.rafId = requestAnimationFrame(loop);
+    }
+
+    stop() {
+        this.active = false;
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = 0;
+        }
+        if (this.ctx) {
+            this.ctx.clearRect(0, 0, this.width, this.height);
+        }
+    }
+
+    update(dt) {
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion) return;
+
+        const pad = 24;
+        for (let i = 0; i < this.stars.length; i++) {
+            const s = this.stars[i];
+            s.x += s.vx * dt;
+            s.y += s.vy * dt;
+
+            if (s.x < -pad) s.x = this.width + pad;
+            else if (s.x > this.width + pad) s.x = -pad;
+
+            if (s.y < -pad) s.y = this.height + pad;
+            else if (s.y > this.height + pad) s.y = -pad;
+        }
+    }
+
+    draw(currentTime = performance.now()) {
+        if (!this.ctx) return;
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        const accent = this.getThemeAccent();
+        const t = currentTime / 1000;
+        const maxLinkDist = 125;
+        const maxLinkDistSq = maxLinkDist * maxLinkDist;
+        const pointerDist = 155;
+        const pointerDistSq = pointerDist * pointerDist;
+
+        // 1. Celestial Constellation Links
+        this.ctx.lineWidth = 0.95;
+        for (let i = 0; i < this.stars.length; i++) {
+            const s1 = this.stars[i];
+            for (let j = i + 1; j < this.stars.length; j++) {
+                const s2 = this.stars[j];
+                const dx = s1.x - s2.x;
+                const dy = s1.y - s2.y;
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq < maxLinkDistSq) {
+                    const dist = Math.sqrt(distSq);
+                    const alpha = (1 - dist / maxLinkDist) * 0.26;
+
+                    if (s1.isAnchor || s2.isAnchor) {
+                        this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${alpha * 0.85})`;
+                    } else {
+                        this.ctx.strokeStyle = `rgba(51, 65, 85, ${alpha})`;
+                    }
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(s1.x, s1.y);
+                    this.ctx.lineTo(s2.x, s2.y);
+                    this.ctx.stroke();
+                }
+            }
+        }
+
+        // 2. Interactive Cursor Constellation Lines & Telescope Focal Reticle
+        if (this.pointer.active && this.pointer.x >= 0 && this.pointer.y >= 0) {
+            for (let i = 0; i < this.stars.length; i++) {
+                const s = this.stars[i];
+                const dx = s.x - this.pointer.x;
+                const dy = s.y - this.pointer.y;
+                const distSq = dx * dx + dy * dy;
+
+                if (distSq < pointerDistSq) {
+                    const dist = Math.sqrt(distSq);
+                    const alpha = (1 - dist / pointerDist) * 0.52;
+                    this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${alpha})`;
+                    this.ctx.lineWidth = 1.0;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(s.x, s.y);
+                    this.ctx.lineTo(this.pointer.x, this.pointer.y);
+                    this.ctx.stroke();
+                }
+            }
+
+            // Telescope reticle ring on cursor
+            const curRadius = 16;
+            this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, 0.42)`;
+            this.ctx.lineWidth = 1.0;
+            this.ctx.beginPath();
+            this.ctx.arc(this.pointer.x, this.pointer.y, curRadius, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            // Reticle crosshair ticks
+            const tickLen = 5;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.pointer.x, this.pointer.y - curRadius - tickLen);
+            this.ctx.lineTo(this.pointer.x, this.pointer.y - curRadius + tickLen);
+            this.ctx.moveTo(this.pointer.x, this.pointer.y + curRadius - tickLen);
+            this.ctx.lineTo(this.pointer.x, this.pointer.y + curRadius + tickLen);
+            this.ctx.moveTo(this.pointer.x - curRadius - tickLen, this.pointer.y);
+            this.ctx.lineTo(this.pointer.x - curRadius + tickLen, this.pointer.y);
+            this.ctx.moveTo(this.pointer.x + curRadius - tickLen, this.pointer.y);
+            this.ctx.lineTo(this.pointer.x + curRadius + tickLen, this.pointer.y);
+            this.ctx.stroke();
+
+            // Cursor focal pin
+            this.ctx.fillStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, 0.75)`;
+            this.ctx.beginPath();
+            this.ctx.arc(this.pointer.x, this.pointer.y, 2.2, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // 3. Draw Stars & Major Anchor Star Reticles
+        for (let i = 0; i < this.stars.length; i++) {
+            const s = this.stars[i];
+            const twinkle = 0.75 + 0.25 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
+            const currentAlpha = Math.min(1, Math.max(0.1, s.baseAlpha * twinkle));
+
+            if (s.isAnchor) {
+                const reticleRad = s.reticleRadius + 0.5 * Math.sin(t * 1.5 + s.twinklePhase);
+
+                // Observatory coordinate circle
+                this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${currentAlpha * 0.52})`;
+                this.ctx.lineWidth = 0.95;
+                this.ctx.beginPath();
+                this.ctx.arc(s.x, s.y, reticleRad, 0, Math.PI * 2);
+                this.ctx.stroke();
+
+                // Crosshair ticks (+)
+                const tick = 3.6;
+                this.ctx.beginPath();
+                this.ctx.moveTo(s.x, s.y - reticleRad - tick);
+                this.ctx.lineTo(s.x, s.y - reticleRad + 1);
+                this.ctx.moveTo(s.x, s.y + reticleRad - 1);
+                this.ctx.lineTo(s.x, s.y + reticleRad + tick);
+                this.ctx.moveTo(s.x - reticleRad - tick, s.y);
+                this.ctx.lineTo(s.x - reticleRad + 1, s.y);
+                this.ctx.moveTo(s.x + reticleRad - 1, s.y);
+                this.ctx.lineTo(s.x + reticleRad + tick, s.y);
+                this.ctx.stroke();
+
+                // Star core accent glow
+                this.ctx.fillStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${currentAlpha * 0.88})`;
+                this.ctx.beginPath();
+                this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Deep star core pin
+                this.ctx.fillStyle = `rgba(15, 23, 42, ${currentAlpha * 0.95})`;
+                this.ctx.beginPath();
+                this.ctx.arc(s.x, s.y, s.radius * 0.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            } else {
+                // Regular celestial star
+                this.ctx.fillStyle = `rgba(30, 41, 59, ${currentAlpha * 0.8})`;
+                this.ctx.beginPath();
+                this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+    }
+}
+
+constellationChart = constellationCanvas ? new ConstellationStarChart(constellationCanvas) : null;
+if (constellationChart && document.documentElement.dataset.scheme === 'light') {
+    constellationChart.start();
+}
+
