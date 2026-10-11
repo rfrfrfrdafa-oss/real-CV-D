@@ -384,10 +384,11 @@ class MeteorShower {
             this.canvas.hidden = true;
             document.documentElement.dataset.meteorShower = 'false';
         }
+        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
         this.lastTime = performance.now();
         this.nextSpawn = this.lastTime + this.getRandomDelay();
         this.pointer = { x: -1000, y: -1000, active: false };
-        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
 
@@ -399,6 +400,9 @@ class MeteorShower {
     }
 
     getRandomDelay() {
+        if (this.isMobile) {
+            return 3400 + Math.random() * 3200;
+        }
         return 2200 + Math.random() * 2600;
     }
 
@@ -464,7 +468,8 @@ class MeteorShower {
     }
 
     resize() {
-        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+        this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
         this.canvas.width = Math.round(this.width * this.dpr);
@@ -545,13 +550,20 @@ class MeteorShower {
     }
 
     spawnMeteor(options = {}) {
-        if (this.meteors.length >= 25) return;
+        const maxMeteors = this.isMobile ? 6 : 18;
+        if (this.meteors.length >= maxMeteors) return;
 
         const isBolide = !!options.isBolide;
         const angle = options.angle ?? (Math.PI / 180 * (35 + Math.random() * 18));
-        const speed = options.speed ?? (isBolide ? 1350 : 950 + Math.random() * 650);
-        const length = options.length ?? (isBolide ? 290 : 130 + Math.random() * 140);
-        const thickness = options.thickness ?? (isBolide ? 4.5 : 1.6 + Math.random() * 1.3);
+        const defaultSpeed = isBolide 
+            ? (this.isMobile ? 1100 : 1350) 
+            : (this.isMobile ? 800 + Math.random() * 450 : 950 + Math.random() * 650);
+        const speed = options.speed ?? defaultSpeed;
+        const defaultLength = isBolide 
+            ? (this.isMobile ? 220 : 290) 
+            : (this.isMobile ? 100 + Math.random() * 90 : 130 + Math.random() * 140);
+        const length = options.length ?? defaultLength;
+        const thickness = options.thickness ?? (isBolide ? (this.isMobile ? 3.6 : 4.5) : (this.isMobile ? 1.4 : 1.6) + Math.random() * 1.1);
 
         let x = options.x;
         let y = options.y;
@@ -566,7 +578,7 @@ class MeteorShower {
         }
 
         const maxLife = options.maxLife ?? (isBolide ? 1.25 : 0.75 + Math.random() * 0.55);
-        const canCollide = options.canCollide !== undefined ? options.canCollide : (isBolide || Math.random() < 0.58);
+        const canCollide = options.canCollide !== undefined ? options.canCollide : (isBolide || Math.random() < 0.55);
 
         this.meteors.push({
             x,
@@ -581,16 +593,20 @@ class MeteorShower {
             target: options.target || null,
             canCollide,
             isBolide,
-            sparkTimer: 0
+            sparkTimer: 0,
+            colTimer: 0
         });
     }
 
     summonMeteor(targetX, targetY, makeBurstAtTarget = true) {
+        const maxMeteors = this.isMobile ? 5 : 20;
+        if (this.meteors.length >= maxMeteors) return;
+
         const angle = Math.PI / 180 * (38 + Math.random() * 10);
-        const distance = 380 + Math.random() * 220;
+        const distance = (this.isMobile ? 280 : 380) + Math.random() * 180;
         const startX = targetX - Math.cos(angle) * distance;
         const startY = targetY - Math.sin(angle) * distance;
-        const speed = 1250 + Math.random() * 400;
+        const speed = (this.isMobile ? 1050 : 1250) + Math.random() * 350;
         const timeToTarget = distance / speed;
 
         this.spawnMeteor({
@@ -598,8 +614,8 @@ class MeteorShower {
             y: startY,
             angle,
             speed,
-            length: 190,
-            thickness: 2.6,
+            length: this.isMobile ? 140 : 190,
+            thickness: this.isMobile ? 2.2 : 2.6,
             maxLife: timeToTarget + 0.35,
             canCollide: true,
             target: makeBurstAtTarget ? { x: targetX, y: targetY, reached: false } : null
@@ -612,20 +628,22 @@ class MeteorShower {
         if (!this.active) {
             this.setActive(true, true);
         }
-        for (let i = 0; i < count; i++) {
+        const actualCount = this.isMobile ? Math.min(count, 3) : count;
+        const interval = this.isMobile ? 250 : 190;
+        for (let i = 0; i < actualCount; i++) {
             setTimeout(() => {
                 if (this.active) {
-                    const isBolide = isEvent && i === Math.floor(count / 2);
+                    const isBolide = isEvent && i === Math.floor(actualCount / 2);
                     this.spawnMeteor({
                         x: Math.random() * (this.width * 0.75),
                         y: -30 - Math.random() * 50,
-                        speed: 1050 + Math.random() * 650,
-                        length: 140 + Math.random() * 130,
-                        canCollide: Math.random() < 0.7,
+                        speed: this.isMobile ? 800 + Math.random() * 450 : 1050 + Math.random() * 650,
+                        length: this.isMobile ? 100 + Math.random() * 90 : 140 + Math.random() * 130,
+                        canCollide: Math.random() < 0.65,
                         isBolide
                     });
                 }
-            }, i * 190 + Math.random() * 70);
+            }, i * interval + Math.random() * 50);
         }
     }
 
@@ -634,33 +652,42 @@ class MeteorShower {
         const accent = this.getThemeAccent();
 
         // 1. Expanding Shockwave Ring
-        this.shockwaves.push({
-            x,
-            y,
-            radius: 8,
-            maxRadius: isBolide ? 85 : 55,
-            speed: isBolide ? 280 : 220,
-            alpha: 1,
-            decay: isBolide ? 1.5 : 2.1,
-            color: accent,
-            lineWidth: isBolide ? 4.5 : 3
-        });
+        const maxShockwaves = this.isMobile ? 2 : 5;
+        if (this.shockwaves.length < maxShockwaves) {
+            this.shockwaves.push({
+                x,
+                y,
+                radius: 6,
+                maxRadius: this.isMobile ? (isBolide ? 48 : 34) : (isBolide ? 85 : 55),
+                speed: this.isMobile ? (isBolide ? 200 : 160) : (isBolide ? 280 : 220),
+                alpha: 1,
+                decay: isBolide ? 1.8 : 2.4,
+                color: accent,
+                lineWidth: this.isMobile ? (isBolide ? 3 : 2) : (isBolide ? 4.5 : 3)
+            });
+        }
 
         // 2. Central Plasma Flash
-        this.flashes.push({
-            x,
-            y,
-            radius: isBolide ? 70 : 42,
-            alpha: 1,
-            decay: isBolide ? 3.5 : 4.8,
-            color: [255, 255, 255]
-        });
+        const maxFlashes = this.isMobile ? 2 : 4;
+        if (this.flashes.length < maxFlashes) {
+            this.flashes.push({
+                x,
+                y,
+                radius: this.isMobile ? (isBolide ? 36 : 24) : (isBolide ? 70 : 42),
+                alpha: 1,
+                decay: isBolide ? 3.8 : 5.2,
+                color: [255, 255, 255]
+            });
+        }
 
         // 3. Stardust Sparks Burst
-        const sparkCount = isBolide ? 38 : (targetBox ? 26 : 14);
-        const maxSpeed = isBolide ? 260 : 190;
+        const sparkCount = this.isMobile 
+            ? (isBolide ? 12 : (targetBox ? 7 : 4))
+            : (isBolide ? 38 : (targetBox ? 26 : 14));
+        const maxSpeed = this.isMobile ? (isBolide ? 170 : 130) : (isBolide ? 260 : 190);
+        const sparkLimit = this.isMobile ? 40 : 170;
         for (let i = 0; i < sparkCount; i++) {
-            if (this.sparks.length >= 170) break;
+            if (this.sparks.length >= sparkLimit) break;
             const angle = Math.random() * Math.PI * 2;
             const spd = (Math.random() * 0.8 + 0.2) * maxSpeed;
             this.sparks.push({
@@ -668,9 +695,9 @@ class MeteorShower {
                 y,
                 vx: Math.cos(angle) * spd,
                 vy: Math.sin(angle) * spd,
-                size: Math.random() * 2.4 + 1.2,
+                size: Math.random() * 2.0 + 1.0,
                 alpha: 1,
-                decay: Math.random() * 0.04 + 0.025,
+                decay: Math.random() * 0.05 + 0.03,
                 color: Math.random() < 0.35 ? [255, 255, 255] : accent
             });
         }
@@ -678,38 +705,44 @@ class MeteorShower {
         // 4. Trigger UI Element Impact Shake & Fiery Burning Effect
         if (targetBox) {
             targetBox.classList.remove('meteor-impacted');
-            void targetBox.offsetWidth;
-            targetBox.classList.add('meteor-impacted');
+            requestAnimationFrame(() => {
+                targetBox.classList.add('meteor-impacted');
+            });
 
-            // Apply intense fiery burning aura!
+            // Apply fiery burning aura
             targetBox.classList.add('meteor-burning');
 
             // Spawn floating fire embers rising from the hit element
-            this.spawnBurningEmbers(x, y, targetBox, isBolide ? 35 : 22);
+            const emberCount = this.isMobile ? (isBolide ? 8 : 4) : (isBolide ? 35 : 22);
+            this.spawnBurningEmbers(x, y, targetBox, emberCount);
 
             setTimeout(() => {
                 targetBox.classList.remove('meteor-impacted');
             }, 500);
 
-            // Secondary crackling puff of embers
-            setTimeout(() => {
-                if (this.active) {
-                    this.spawnBurningEmbers(x, y - 8, targetBox, 10);
-                }
-            }, 800);
+            // Secondary crackling puff of embers (desktop only)
+            if (!this.isMobile) {
+                setTimeout(() => {
+                    if (this.active) {
+                        this.spawnBurningEmbers(x, y - 8, targetBox, 8);
+                    }
+                }, 800);
+            }
 
-            // Extinguish burning effect after 2.4 seconds
+            // Extinguish burning effect after 2.0s on mobile, 2.4s on desktop
             setTimeout(() => {
                 targetBox.classList.remove('meteor-burning');
-            }, 2400);
+            }, this.isMobile ? 2000 : 2400);
         }
     }
 
     spawnBurningEmbers(x, y, targetBox = null, count = 22) {
-        if (this.embers.length >= 130) return;
+        const emberLimit = this.isMobile ? 24 : 130;
+        if (this.embers.length >= emberLimit) return;
+        const actualCount = this.isMobile ? Math.min(count, 8) : count;
         const rect = targetBox ? targetBox.getBoundingClientRect() : null;
 
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < actualCount; i++) {
             let startX = x + (Math.random() - 0.5) * 45;
             let startY = y + (Math.random() - 0.5) * 25;
 
@@ -718,13 +751,13 @@ class MeteorShower {
                 startY = Math.max(rect.top + 6, Math.min(rect.bottom - 6, startY));
             }
 
-            const maxLife = 1.3 + Math.random() * 0.9;
+            const maxLife = 1.2 + Math.random() * 0.8;
             this.embers.push({
                 x: startX,
                 y: startY,
-                vx: (Math.random() - 0.5) * 45,
-                vy: -(Math.random() * 85 + 40),
-                size: Math.random() * 2.8 + 1.2,
+                vx: (Math.random() - 0.5) * 40,
+                vy: -(Math.random() * 75 + 35),
+                size: Math.random() * 2.4 + 1.0,
                 alpha: 1,
                 age: 0,
                 maxLife,
@@ -758,21 +791,21 @@ class MeteorShower {
             {
                 title: 'Perseid Meteor Storm',
                 desc: 'Intense cosmic debris cluster entering the atmosphere',
-                count: 22,
-                waves: 3,
+                count: this.isMobile ? 8 : 22,
+                waves: this.isMobile ? 2 : 3,
                 bolide: false
             },
             {
                 title: 'Geminids Stardust Surge',
                 desc: 'Ionized stardust wave blazing across local space sector',
-                count: 18,
+                count: this.isMobile ? 6 : 18,
                 waves: 2,
                 bolide: false
             },
             {
                 title: 'Superbolide Fireball Event',
                 desc: 'Rare giant cosmic fireball detected on collision trajectory!',
-                count: 15,
+                count: this.isMobile ? 4 : 15,
                 waves: 2,
                 bolide: true
             }
@@ -871,7 +904,11 @@ class MeteorShower {
             }
 
             // Real-time Collision Detection with UI text / cards / buttons / boxes
-            if (m.canCollide && m.age > 0.08 && m.x > 10 && m.x < this.width - 10 && m.y > 65 && m.y < this.height - 10) {
+            m.colTimer = (m.colTimer || 0) + dt;
+            const colInterval = this.isMobile ? 0.08 : 0.035;
+            const canCheckCollision = m.canCollide && m.colTimer >= colInterval && (!this.isMobile || i < 2);
+            if (canCheckCollision && m.age > 0.08 && m.x > 10 && m.x < this.width - 10 && m.y > 65 && m.y < this.height - 10) {
+                m.colTimer = 0;
                 const hitEl = document.elementFromPoint(m.x, m.y);
                 if (hitEl && !hitEl.closest('.header, .background-menu, .meteor-event-toast, #meteor-canvas, #background-video')) {
                     const targetBox = hitEl.closest(
@@ -890,8 +927,9 @@ class MeteorShower {
             }
 
             m.sparkTimer += dt;
-            const sparkInterval = m.isBolide ? 0.02 : 0.035;
-            if (m.sparkTimer >= sparkInterval && this.sparks.length < 150) {
+            const sparkInterval = this.isMobile ? (m.isBolide ? 0.045 : 0.075) : (m.isBolide ? 0.02 : 0.035);
+            const sparkLimit = this.isMobile ? 32 : 150;
+            if (m.sparkTimer >= sparkInterval && this.sparks.length < sparkLimit) {
                 m.sparkTimer = 0;
                 const dir = Math.atan2(m.vy, m.vx);
                 const sparkDist = Math.random() * (m.length * 0.45);
@@ -900,9 +938,9 @@ class MeteorShower {
                     y: m.y - Math.sin(dir) * sparkDist + (Math.random() - 0.5) * 4,
                     vx: -Math.cos(dir) * (m.speed * 0.05) + (Math.random() - 0.5) * 20,
                     vy: -Math.sin(dir) * (m.speed * 0.05) + (Math.random() - 0.5) * 20,
-                    size: m.isBolide ? Math.random() * 2.2 + 1.2 : Math.random() * 1.6 + 0.8,
+                    size: m.isBolide ? (this.isMobile ? 1.8 : 2.2) : (this.isMobile ? 1.2 : 1.6),
                     alpha: 0.95,
-                    decay: Math.random() * 0.045 + 0.03,
+                    decay: Math.random() * 0.05 + 0.035,
                     color: Math.random() < 0.35 ? [255, 255, 255] : accent
                 });
             }
@@ -1043,7 +1081,7 @@ class MeteorShower {
             this.ctx.arc(ember.x, ember.y, isLight ? ember.size * 1.1 : ember.size, 0, Math.PI * 2);
             this.ctx.fill();
 
-            if (ember.alpha > 0.3) {
+            if (!this.isMobile && ember.alpha > 0.3) {
                 const auraColor = isLight ? `rgba(234, 88, 12, ${ember.alpha * 0.35})` : `rgba(255, 80, 0, ${ember.alpha * 0.3})`;
                 this.ctx.fillStyle = auraColor;
                 this.ctx.beginPath();
@@ -1393,9 +1431,10 @@ class ConstellationStarChart {
 
         this.stars = [];
         this.rafId = 0;
+        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
-        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
         this.lastTime = performance.now();
         this.active = false;
         this.pointer = { x: -1000, y: -1000, active: false };
@@ -1447,7 +1486,8 @@ class ConstellationStarChart {
     }
 
     resize() {
-        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+        this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
         this.canvas.width = Math.round(this.width * this.dpr);
@@ -1463,24 +1503,26 @@ class ConstellationStarChart {
     initStars() {
         this.stars = [];
         const area = this.width * this.height;
-        const count = Math.max(30, Math.min(88, Math.floor(area / 20800)));
+        const minStars = this.isMobile ? 14 : 30;
+        const maxStars = this.isMobile ? 22 : 80;
+        const count = Math.max(minStars, Math.min(maxStars, Math.floor(area / (this.isMobile ? 26000 : 20800))));
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         for (let i = 0; i < count; i++) {
-            const isAnchor = Math.random() < 0.2;
-            const speed = reducedMotion ? 0 : 7 + Math.random() * 12;
+            const isAnchor = Math.random() < (this.isMobile ? 0.15 : 0.2);
+            const speed = reducedMotion ? 0 : (this.isMobile ? 5 + Math.random() * 8 : 7 + Math.random() * 12);
             const angle = Math.random() * Math.PI * 2;
             this.stars.push({
                 x: Math.random() * this.width,
                 y: Math.random() * this.height,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
-                radius: isAnchor ? 3.0 + Math.random() * 0.85 : 1.6 + Math.random() * 1.0,
+                radius: isAnchor ? 2.8 + Math.random() * 0.7 : 1.5 + Math.random() * 0.9,
                 baseAlpha: isAnchor ? 0.75 + Math.random() * 0.2 : 0.4 + Math.random() * 0.35,
                 twinkleSpeed: 1.2 + Math.random() * 2.2,
                 twinklePhase: Math.random() * Math.PI * 2,
                 isAnchor,
-                reticleRadius: isAnchor ? 8.5 + Math.random() * 3.5 : 0
+                reticleRadius: isAnchor ? 8.0 + Math.random() * 3.0 : 0
             });
         }
     }
@@ -1542,13 +1584,15 @@ class ConstellationStarChart {
         this.ctx.clearRect(0, 0, this.width, this.height);
         const accent = this.getThemeAccent();
         const t = currentTime / 1000;
-        const maxLinkDist = 125;
+        const maxLinkDist = this.isMobile ? 110 : 125;
         const maxLinkDistSq = maxLinkDist * maxLinkDist;
         const pointerDist = 155;
         const pointerDistSq = pointerDist * pointerDist;
 
-        // 1. Celestial Constellation Links
-        this.ctx.lineWidth = 0.95;
+        // 1. Celestial Constellation Links (Batched into unified stroke paths)
+        const regularLines = [];
+        const anchorLines = [];
+
         for (let i = 0; i < this.stars.length; i++) {
             const s1 = this.stars[i];
             for (let j = i + 1; j < this.stars.length; j++) {
@@ -1558,24 +1602,44 @@ class ConstellationStarChart {
                 const distSq = dx * dx + dy * dy;
 
                 if (distSq < maxLinkDistSq) {
-                    const dist = Math.sqrt(distSq);
-                    const alpha = (1 - dist / maxLinkDist) * 0.26;
-
                     if (s1.isAnchor || s2.isAnchor) {
-                        this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${alpha * 0.85})`;
+                        anchorLines.push(s1.x, s1.y, s2.x, s2.y);
                     } else {
-                        this.ctx.strokeStyle = `rgba(51, 65, 85, ${alpha})`;
+                        regularLines.push(s1.x, s1.y, s2.x, s2.y);
                     }
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(s1.x, s1.y);
-                    this.ctx.lineTo(s2.x, s2.y);
-                    this.ctx.stroke();
                 }
             }
         }
 
+        // Draw regular celestial links in 1 GPU stroke call
+        if (regularLines.length > 0) {
+            this.ctx.beginPath();
+            this.ctx.lineWidth = 0.85;
+            this.ctx.strokeStyle = 'rgba(51, 65, 85, 0.18)';
+            for (let k = 0; k < regularLines.length; k += 4) {
+                this.ctx.moveTo(regularLines[k], regularLines[k + 1]);
+                this.ctx.lineTo(regularLines[k + 2], regularLines[k + 3]);
+            }
+            this.ctx.stroke();
+        }
+
+        // Draw anchor links in 1 GPU stroke call
+        if (anchorLines.length > 0) {
+            this.ctx.beginPath();
+            this.ctx.lineWidth = 1.0;
+            this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, 0.28)`;
+            for (let k = 0; k < anchorLines.length; k += 4) {
+                this.ctx.moveTo(anchorLines[k], anchorLines[k + 1]);
+                this.ctx.lineTo(anchorLines[k + 2], anchorLines[k + 3]);
+            }
+            this.ctx.stroke();
+        }
+
         // 2. Interactive Cursor Constellation Lines & Telescope Focal Reticle
         if (this.pointer.active && this.pointer.x >= 0 && this.pointer.y >= 0) {
+            this.ctx.beginPath();
+            this.ctx.lineWidth = 1.0;
+            this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, 0.42)`;
             for (let i = 0; i < this.stars.length; i++) {
                 const s = this.stars[i];
                 const dx = s.x - this.pointer.x;
@@ -1583,22 +1647,17 @@ class ConstellationStarChart {
                 const distSq = dx * dx + dy * dy;
 
                 if (distSq < pointerDistSq) {
-                    const dist = Math.sqrt(distSq);
-                    const alpha = (1 - dist / pointerDist) * 0.52;
-                    this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${alpha})`;
-                    this.ctx.lineWidth = 1.0;
-                    this.ctx.beginPath();
                     this.ctx.moveTo(s.x, s.y);
                     this.ctx.lineTo(this.pointer.x, this.pointer.y);
-                    this.ctx.stroke();
                 }
             }
+            this.ctx.stroke();
 
             // Telescope reticle ring on cursor
             const curRadius = 16;
+            this.ctx.beginPath();
             this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, 0.42)`;
             this.ctx.lineWidth = 1.0;
-            this.ctx.beginPath();
             this.ctx.arc(this.pointer.x, this.pointer.y, curRadius, 0, Math.PI * 2);
             this.ctx.stroke();
 
@@ -1622,53 +1681,58 @@ class ConstellationStarChart {
             this.ctx.fill();
         }
 
-        // 3. Draw Stars & Major Anchor Star Reticles
+        // 3. Draw Regular Stars in 1 Batched fill call
+        this.ctx.beginPath();
+        this.ctx.fillStyle = 'rgba(30, 41, 59, 0.65)';
         for (let i = 0; i < this.stars.length; i++) {
             const s = this.stars[i];
+            if (!s.isAnchor) {
+                this.ctx.moveTo(s.x + s.radius, s.y);
+                this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            }
+        }
+        this.ctx.fill();
+
+        // 4. Draw Major Anchor Stars with Specialized Observatory Reticles
+        for (let i = 0; i < this.stars.length; i++) {
+            const s = this.stars[i];
+            if (!s.isAnchor) continue;
+
             const twinkle = 0.75 + 0.25 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
             const currentAlpha = Math.min(1, Math.max(0.1, s.baseAlpha * twinkle));
+            const reticleRad = s.reticleRadius + 0.5 * Math.sin(t * 1.5 + s.twinklePhase);
 
-            if (s.isAnchor) {
-                const reticleRad = s.reticleRadius + 0.5 * Math.sin(t * 1.5 + s.twinklePhase);
+            // Observatory coordinate circle
+            this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${currentAlpha * 0.52})`;
+            this.ctx.lineWidth = 0.95;
+            this.ctx.beginPath();
+            this.ctx.arc(s.x, s.y, reticleRad, 0, Math.PI * 2);
+            this.ctx.stroke();
 
-                // Observatory coordinate circle
-                this.ctx.strokeStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${currentAlpha * 0.52})`;
-                this.ctx.lineWidth = 0.95;
-                this.ctx.beginPath();
-                this.ctx.arc(s.x, s.y, reticleRad, 0, Math.PI * 2);
-                this.ctx.stroke();
+            // Crosshair ticks (+)
+            const tick = 3.6;
+            this.ctx.beginPath();
+            this.ctx.moveTo(s.x, s.y - reticleRad - tick);
+            this.ctx.lineTo(s.x, s.y - reticleRad + 1);
+            this.ctx.moveTo(s.x, s.y + reticleRad - 1);
+            this.ctx.lineTo(s.x, s.y + reticleRad + tick);
+            this.ctx.moveTo(s.x - reticleRad - tick, s.y);
+            this.ctx.lineTo(s.x - reticleRad + 1, s.y);
+            this.ctx.moveTo(s.x + reticleRad - 1, s.y);
+            this.ctx.lineTo(s.x + reticleRad + tick, s.y);
+            this.ctx.stroke();
 
-                // Crosshair ticks (+)
-                const tick = 3.6;
-                this.ctx.beginPath();
-                this.ctx.moveTo(s.x, s.y - reticleRad - tick);
-                this.ctx.lineTo(s.x, s.y - reticleRad + 1);
-                this.ctx.moveTo(s.x, s.y + reticleRad - 1);
-                this.ctx.lineTo(s.x, s.y + reticleRad + tick);
-                this.ctx.moveTo(s.x - reticleRad - tick, s.y);
-                this.ctx.lineTo(s.x - reticleRad + 1, s.y);
-                this.ctx.moveTo(s.x + reticleRad - 1, s.y);
-                this.ctx.lineTo(s.x + reticleRad + tick, s.y);
-                this.ctx.stroke();
+            // Star core accent glow
+            this.ctx.fillStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${currentAlpha * 0.88})`;
+            this.ctx.beginPath();
+            this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            this.ctx.fill();
 
-                // Star core accent glow
-                this.ctx.fillStyle = `rgba(${accent[0]}, ${accent[1]}, ${accent[2]}, ${currentAlpha * 0.88})`;
-                this.ctx.beginPath();
-                this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Deep star core pin
-                this.ctx.fillStyle = `rgba(15, 23, 42, ${currentAlpha * 0.95})`;
-                this.ctx.beginPath();
-                this.ctx.arc(s.x, s.y, s.radius * 0.5, 0, Math.PI * 2);
-                this.ctx.fill();
-            } else {
-                // Regular celestial star
-                this.ctx.fillStyle = `rgba(30, 41, 59, ${currentAlpha * 0.8})`;
-                this.ctx.beginPath();
-                this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
+            // Deep star core pin
+            this.ctx.fillStyle = `rgba(15, 23, 42, ${currentAlpha * 0.95})`;
+            this.ctx.beginPath();
+            this.ctx.arc(s.x, s.y, s.radius * 0.5, 0, Math.PI * 2);
+            this.ctx.fill();
         }
     }
 }
