@@ -2553,6 +2553,60 @@ section {
     }
 }
 
+/* ==========================================================================
+   MOBILE PERFORMANCE OPTIMIZATIONS (METEOR SHOWER, VIDEO & COLLISION)
+   ========================================================================== */
+@media (max-width: 768px) {
+    #background-video {
+        filter: none !important;
+        transform: translateZ(0);
+    }
+
+    #meteor-canvas,
+    :root[data-background-effect] #meteor-canvas {
+        mix-blend-mode: normal !important;
+        transform: translateZ(0);
+    }
+
+    #constellation-canvas {
+        transform: translateZ(0);
+    }
+
+    @keyframes meteorImpactShake {
+        0% {
+            transform: scale(1);
+        }
+        20% {
+            transform: scale(1.02) translateY(-2px);
+        }
+        50% {
+            transform: scale(0.99) translateY(1px);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .meteor-burning {
+        animation: fireHeatShimmerMobile 0.5s infinite alternate ease-in-out !important;
+        filter: none !important;
+    }
+
+    :root[data-scheme="light"] .meteor-burning {
+        animation: fireHeatShimmerMobile 0.5s infinite alternate ease-in-out !important;
+        filter: none !important;
+    }
+
+    @keyframes fireHeatShimmerMobile {
+        0% {
+            opacity: 0.95;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
     *,
