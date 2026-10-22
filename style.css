@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
 
 /* ==========================================================================
    CSS VARIABLES & THEMING
@@ -278,7 +278,7 @@
     border: none;
     outline: none;
     scroll-behavior: smooth;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Black Ops One', cursive;
 }
 
 html {
@@ -979,21 +979,18 @@ section {
     animation: meteorTwinkle 2s ease-in-out infinite;
 }
 
-/* Hide Wish button on light/white background and when meteor shower is off */
-:root[data-scheme="light"] .badge-meteor-trigger,
-:root[data-meteor-shower="false"] .badge-meteor-trigger {
+/* Hide Wish button on light/white background */
+:root[data-scheme="light"] .badge-meteor-trigger {
     display: none !important;
 }
 
-:root[data-scheme="light"] .hero-badge.interactive-badge,
-:root[data-meteor-shower="false"] .hero-badge.interactive-badge {
+:root[data-scheme="light"] .hero-badge.interactive-badge {
     cursor: default !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
-:root[data-scheme="light"] .hero-badge.interactive-badge:hover,
-:root[data-meteor-shower="false"] .hero-badge.interactive-badge:hover {
+:root[data-scheme="light"] .hero-badge.interactive-badge:hover {
     background: rgba(var(--accent-rgb), 0.08) !important;
     border-color: rgba(var(--accent-rgb), 0.2) !important;
     transform: none !important;
