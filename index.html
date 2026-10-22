@@ -35,10 +35,11 @@
             } else {
                 delete root.dataset.backgroundEffect;
             }
-            if (isLightScheme || localStorage.getItem('portfolio-meteor-shower') === 'false') {
-                root.dataset.meteorShower = 'false';
-            } else {
+            const savedMeteorShower = localStorage.getItem('portfolio-meteor-shower');
+            if (!isLightScheme && savedMeteorShower === 'true') {
                 root.dataset.meteorShower = 'true';
+            } else {
+                root.dataset.meteorShower = 'false';
             }
             if (localStorage.getItem('services-rainbow-icons') === 'true') {
                 root.dataset.serviceIcons = 'rainbow';
@@ -52,10 +53,10 @@
     <!-- Font Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
     
     <!-- Link ke file CSS -->
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -127,7 +128,7 @@
                             <span>Cinematic night video</span>
                         <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="background-effect-option" id="meteor-shower-toggle" aria-pressed="true">
+                    <button type="button" class="background-effect-option" id="meteor-shower-toggle" aria-pressed="false">
                         <i class='bx bx-meteor' aria-hidden="true"></i>
                             <span>Meteor trails</span>
                         <i class='bx bx-check background-effect-check' aria-hidden="true"></i>
@@ -628,6 +629,6 @@
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
     
     <!-- Link ke file Custom JavaScript -->
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>
