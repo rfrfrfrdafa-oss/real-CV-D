@@ -379,7 +379,7 @@ class MeteorShower {
         this.embers = [];
         this.rafId = 0;
         const isSchemeLight = document.documentElement.dataset.scheme === 'light';
-        this.active = !isSchemeLight && document.documentElement.dataset.meteorShower !== 'false';
+        this.active = !isSchemeLight && document.documentElement.dataset.meteorShower === 'true';
         if (!this.active) {
             this.canvas.hidden = true;
             document.documentElement.dataset.meteorShower = 'false';
@@ -458,7 +458,9 @@ class MeteorShower {
         });
 
         // Rare initial delay for cosmic meteor events (2.5 - 4.5 minutes)
-        this.scheduleNextCosmicEvent(150000 + Math.random() * 120000);
+        if (this.active) {
+            this.scheduleNextCosmicEvent(150000 + Math.random() * 120000);
+        }
 
         if (this.active && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             this.start();
@@ -1167,7 +1169,10 @@ if (heroMeteorBtn && meteorShower) {
     let wishResetTimer = 0;
 
     const handleWishAction = (e) => {
-        if (document.documentElement.dataset.scheme === 'light' || !meteorShower.active) return;
+        if (document.documentElement.dataset.scheme === 'light') return;
+        if (!meteorShower.active) {
+            meteorShower.setActive(true, true);
+        }
         const now = Date.now();
         if (now - lastWishClickTime < 280) return; // Prevent spam-clicking within 280ms
         lastWishClickTime = now;
