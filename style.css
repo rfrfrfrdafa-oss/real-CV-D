@@ -1296,7 +1296,17 @@ section {
 }
 
 .about-content .more-text {
-    display: none;
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+}
+
+.about-content .more-text.visible {
+    max-height: 1000px;
+    opacity: 1;
+    margin-bottom: 3rem;
 }
 
 .about-highlights-grid {
@@ -1867,6 +1877,12 @@ section {
     border-color: var(--main-color);
     background: rgba(var(--accent-rgb), 0.05);
     box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.12);
+}
+
+.input-field input:invalid:not(:placeholder-shown),
+.input-field textarea:invalid:not(:placeholder-shown) {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
 .input-field input:focus + i,
