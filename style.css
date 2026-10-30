@@ -1647,6 +1647,12 @@ section {
     overflow: hidden;
 }
 
+.portfolio-image-wrap picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 .portfolio-image-wrap img {
     width: 100%;
     height: 100%;
