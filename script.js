@@ -1317,13 +1317,14 @@ const moreText = document.querySelector('.more-text');
 
 if (readMoreBtn && moreText) {
     readMoreBtn.addEventListener('click', function(e) {
-        e.preventDefault(); 
-        
-        if (moreText.style.display === 'inline' || moreText.style.display === 'block') {
-            moreText.style.display = 'none';
+        e.preventDefault();
+
+        const isVisible = moreText.classList.contains('visible');
+        if (isVisible) {
+            moreText.classList.remove('visible');
             readMoreBtn.textContent = 'Read More';
         } else {
-            moreText.style.display = 'inline';
+            moreText.classList.add('visible');
             readMoreBtn.textContent = 'Read Less';
         }
     });
