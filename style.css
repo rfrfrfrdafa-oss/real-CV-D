@@ -2620,6 +2620,132 @@ section {
     }
 }
 
+/* ==========================================================================
+   PERFORMANCE & LOW-SPEC / ECO MODE OPTIMIZATIONS (GPU & RENDERING ACCELERATION)
+   ========================================================================== */
+.portfolio-card,
+.services-box,
+.skill-category {
+    contain: paint layout;
+}
+
+.skills-container,
+.services-container,
+.portfolio-container {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 650px;
+}
+
+/* Eco / Low-Spec Hardware Mode (Active on low-spec devices or via toggle) */
+:root[data-perf-mode="eco"] .portfolio-card,
+:root[data-perf-mode="eco"] .services-box,
+:root[data-perf-mode="eco"] .skill-category,
+:root[data-perf-mode="eco"] .contact-wrapper,
+:root[data-perf-mode="eco"] .contact-card,
+:root[data-perf-mode="eco"] .contact-form,
+:root[data-perf-mode="eco"] .hero-badge,
+:root[data-perf-mode="eco"] .floating-chip,
+:root[data-perf-mode="eco"] .btn-secondary,
+:root[data-perf-mode="eco"] .btn-outline {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(12, 20, 43, 0.96) !important;
+}
+
+:root[data-scheme="light"][data-perf-mode="eco"] .portfolio-card,
+:root[data-scheme="light"][data-perf-mode="eco"] .services-box,
+:root[data-scheme="light"][data-perf-mode="eco"] .skill-category,
+:root[data-scheme="light"][data-perf-mode="eco"] .contact-wrapper,
+:root[data-scheme="light"][data-perf-mode="eco"] .contact-card,
+:root[data-scheme="light"][data-perf-mode="eco"] .contact-form,
+:root[data-scheme="light"][data-perf-mode="eco"] .hero-badge,
+:root[data-scheme="light"][data-perf-mode="eco"] .floating-chip,
+:root[data-scheme="light"][data-perf-mode="eco"] .btn-secondary,
+:root[data-scheme="light"][data-perf-mode="eco"] .btn-outline {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
+:root[data-perf-mode="eco"] #background-video {
+    filter: none !important;
+    transform: translateZ(0);
+}
+
+:root[data-perf-mode="eco"] #meteor-canvas,
+:root[data-perf-mode="eco"] :root[data-background-effect] #meteor-canvas {
+    mix-blend-mode: normal !important;
+    transform: translateZ(0);
+}
+
+:root[data-perf-mode="eco"] #constellation-canvas {
+    transform: translateZ(0);
+}
+
+:root[data-perf-mode="eco"] .bg-glow {
+    animation: none !important;
+    filter: blur(40px) !important;
+    opacity: 0.25;
+}
+
+:root[data-perf-mode="eco"] .portfolio-card:hover,
+:root[data-perf-mode="eco"] .services-box:hover,
+:root[data-perf-mode="eco"] .skill-category:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Performance Mode Toggle Button */
+.perf-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.1rem;
+    border-radius: 9999px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    user-select: none;
+    line-height: 1;
+}
+
+.perf-toggle:hover {
+    border-color: var(--main-color);
+    color: var(--main-color);
+    transform: translateY(-2px);
+}
+
+.perf-toggle i {
+    font-size: 1.5rem;
+    color: var(--main-color);
+    transition: transform 0.25s ease, color 0.25s ease;
+}
+
+:root[data-perf-mode="eco"] .perf-toggle {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+:root[data-perf-mode="eco"] .perf-toggle i {
+    color: #10b981;
+    transform: scale(1.1);
+}
+
+@media (max-width: 992px) {
+    .perf-toggle .perf-toggle-text {
+        display: none;
+    }
+    .perf-toggle {
+        padding: 0.65rem;
+    }
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
     *,
