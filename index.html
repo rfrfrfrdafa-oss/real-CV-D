@@ -44,6 +44,18 @@
             if (localStorage.getItem('services-rainbow-icons') === 'true') {
                 root.dataset.serviceIcons = 'rainbow';
             }
+            const savedPerfMode = localStorage.getItem('portfolio-perf-mode');
+            if (savedPerfMode === 'eco' || savedPerfMode === 'high') {
+                root.dataset.perfMode = savedPerfMode;
+            } else {
+                const cores = navigator.hardwareConcurrency || 8;
+                const mem = navigator.deviceMemory || 8;
+                if (cores <= 4 || mem <= 4) {
+                    root.dataset.perfMode = 'eco';
+                } else {
+                    root.dataset.perfMode = 'high';
+                }
+            }
         } catch {}
     </script>
     
@@ -56,7 +68,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
     
     <!-- Link ke file CSS -->
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -147,6 +159,11 @@
                 </div>
             </details>
 
+            <button class="perf-toggle" id="perf-toggle" type="button" role="switch" aria-label="Toggle performance profile" aria-checked="false" title="Performance Mode (High / Eco)">
+                <i class='bx bx-tachometer' aria-hidden="true"></i>
+                <span class="perf-toggle-text">High</span>
+            </button>
+
             <button class="scheme-toggle" id="scheme-toggle" type="button" role="switch" aria-label="Light color scheme" aria-checked="false" title="Switch appearance mode">
                 <i class='bx bx-moon' aria-hidden="true"></i>
                 <span>Dark</span>
@@ -207,7 +224,7 @@
         <div class="home-img-wrapper">
             <div class="avatar-glow"></div>
             <div class="home-img">
-                <img src="images1.png" alt="Dafa Fairuz Rahman Profile">
+                <img src="images1.png" alt="Dafa Fairuz Rahman Profile" loading="eager" decoding="async" fetchpriority="high">
             </div>
 
             <div class="floating-chip chip-top">
@@ -232,7 +249,7 @@
     <section class="about" id="about">
         <div class="about-img-wrapper">
             <div class="about-img-card">
-                <img src="images6.png" alt="Coding Philosophy" class="about-img">
+                <img src="images6.png" alt="Coding Philosophy" class="about-img" loading="lazy" decoding="async">
                 <div class="about-card-badge">
                     <i class='bx bx-terminal'></i>
                     <span>Always Learning, Always Building</span>
@@ -394,7 +411,7 @@
             <!-- Project 1 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images5.jpg" alt="Automation Project Wokwi">
+                    <img src="images5.jpg" alt="Automation Project Wokwi" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Microcontroller</span>
                 </div>
                 <div class="portfolio-body">
@@ -412,7 +429,7 @@
             <!-- Project 2 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images8.jpg" alt="Simple Teachable Machine AI">
+                    <img src="images8.jpg" alt="Simple Teachable Machine AI" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Artificial Intelligence</span>
                 </div>
                 <div class="portfolio-body">
@@ -430,7 +447,7 @@
             <!-- Project 3 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images4.jpg" alt="Experimental Plant Project">
+                    <img src="images4.jpg" alt="Experimental Plant Project" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Eco-Tech & IoT</span>
                 </div>
                 <div class="portfolio-body">
@@ -447,7 +464,7 @@
             <!-- Project 4 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images7.jpg" alt="Hardware Engineering and Assembly">
+                    <img src="images7.jpg" alt="Hardware Engineering and Assembly" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Hardware</span>
                 </div>
                 <div class="portfolio-body">
@@ -464,7 +481,7 @@
             <!-- Project 5 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images11.jpg" alt="Video-editing project with a multi-track timeline">
+                    <img src="images11.jpg" alt="Video-editing project with a multi-track timeline" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Video Editing</span>
                 </div>
                 <div class="portfolio-body">
@@ -481,7 +498,7 @@
             <!-- Project 6 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images9.jpg" alt="Basic Python Clock">
+                    <img src="images9.jpg" alt="Basic Python Clock" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Desktop GUI</span>
                 </div>
                 <div class="portfolio-body">
@@ -498,7 +515,7 @@
             <!-- Project 7 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="image10.jpg" alt="Game Maker project editor">
+                    <img src="10press.jpg" alt="Game Maker project editor" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Game Development</span>
                 </div>
                 <div class="portfolio-body">
@@ -515,7 +532,7 @@
             <!-- Project 8 -->
             <div class="portfolio-card">
                 <div class="portfolio-image-wrap">
-                    <img src="images12.png" alt="Linux and Cybersecurity Testing Environment on WSL2">
+                    <img src="images12.png" alt="Linux and Cybersecurity Testing Environment on WSL2" loading="lazy" decoding="async">
                     <span class="portfolio-category-badge">Cybersecurity & Linux</span>
                 </div>
                 <div class="portfolio-body">
@@ -649,6 +666,6 @@
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
     
     <!-- Link ke file Custom JavaScript -->
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>
