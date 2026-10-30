@@ -203,6 +203,64 @@ if (useDarkModeButton) {
     });
 }
 
+/*==================== Hardware Detection & Performance Mode System ====================*/
+const perfToggle = document.getElementById('perf-toggle');
+const perfStorageKey = 'portfolio-perf-mode';
+
+const detectLowSpecDevice = () => {
+    const cores = navigator.hardwareConcurrency || 8;
+    const memory = navigator.deviceMemory || 8;
+    const isSmallScreen = window.innerWidth < 768;
+    return cores <= 4 || memory <= 4 || isSmallScreen;
+};
+
+const applyPerfMode = (mode, persist = false) => {
+    const isEco = mode === 'eco';
+    document.documentElement.dataset.perfMode = mode;
+
+    if (perfToggle) {
+        perfToggle.setAttribute('aria-checked', String(isEco));
+        perfToggle.title = isEco 
+            ? 'Performance Mode: Eco (Click to switch to High Performance)' 
+            : 'Performance Mode: High (Click to switch to Eco / Battery Saver)';
+        const textSpan = perfToggle.querySelector('.perf-toggle-text');
+        const icon = perfToggle.querySelector('i');
+        if (textSpan) {
+            textSpan.textContent = isEco ? 'Eco' : 'High';
+        }
+        if (icon) {
+            icon.className = isEco ? 'bx bx-leaf' : 'bx bx-tachometer';
+        }
+    }
+
+    if (meteorShower && typeof meteorShower.resize === 'function') {
+        meteorShower.isMobile = meteorShower.checkIsMobileOrEco();
+        meteorShower.resize();
+    }
+    if (constellationChart && typeof constellationChart.resize === 'function') {
+        constellationChart.isMobile = constellationChart.checkIsMobileOrEco();
+        constellationChart.resize();
+    }
+
+    if (persist) {
+        try {
+            localStorage.setItem(perfStorageKey, mode);
+        } catch {}
+    }
+};
+
+if (perfToggle) {
+    const initialPerfMode = document.documentElement.dataset.perfMode || 
+        (localStorage.getItem(perfStorageKey) || (detectLowSpecDevice() ? 'eco' : 'high'));
+    applyPerfMode(initialPerfMode);
+
+    perfToggle.addEventListener('click', () => {
+        const currentMode = document.documentElement.dataset.perfMode || 'high';
+        const nextMode = currentMode === 'eco' ? 'high' : 'eco';
+        applyPerfMode(nextMode, true);
+    });
+}
+
 const backgroundRgb = hex => {
     const value = hex.slice(1);
     return [0, 2, 4].map(index => parseInt(value.slice(index, index + 2), 16));
@@ -384,7 +442,7 @@ class MeteorShower {
             this.canvas.hidden = true;
             document.documentElement.dataset.meteorShower = 'false';
         }
-        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+        this.isMobile = this.checkIsMobileOrEco();
         this.lastTime = performance.now();
         this.nextSpawn = this.lastTime + this.getRandomDelay();
         this.pointer = { x: -1000, y: -1000, active: false };
@@ -397,6 +455,10 @@ class MeteorShower {
         this.isCosmicEventActive = false;
 
         this.init();
+    }
+
+    checkIsMobileOrEco() {
+        return window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024) || document.documentElement.dataset.perfMode === 'eco';
     }
 
     getRandomDelay() {
@@ -470,7 +532,7 @@ class MeteorShower {
     }
 
     resize() {
-        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+        this.isMobile = this.checkIsMobileOrEco();
         this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
@@ -1437,7 +1499,7 @@ class ConstellationStarChart {
 
         this.stars = [];
         this.rafId = 0;
-        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+        this.isMobile = this.checkIsMobileOrEco();
         this.width = window.innerWidth;
         this.height = window.innerHeight;
         this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
@@ -1461,6 +1523,10 @@ class ConstellationStarChart {
             }
         } catch {}
         return [0, 229, 255];
+    }
+
+    checkIsMobileOrEco() {
+        return window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024) || document.documentElement.dataset.perfMode === 'eco';
     }
 
     init() {
@@ -1492,7 +1558,7 @@ class ConstellationStarChart {
     }
 
     resize() {
-        this.isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+        this.isMobile = this.checkIsMobileOrEco();
         this.dpr = this.isMobile ? Math.min(window.devicePixelRatio || 1, 1.0) : Math.min(window.devicePixelRatio || 1, 1.75);
         this.width = window.innerWidth;
         this.height = window.innerHeight;
