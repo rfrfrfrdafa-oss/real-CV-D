@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- =====================================================================
+         [CUSTOMIZATION GUIDE: 1. BRANDING & METADATA]
+         Customize: Update the title, description, and author to your personal info.
+         ===================================================================== -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="404 - Cosmic Coordinates Lost. You have drifted into deep space. Return to Dafa Fairuz Rahman's portfolio.">
+    <meta name="author" content="Dafa Fairuz Rahman">
+    <title>404: Cosmic Coordinates Lost — Dafa Fairuz Rahman</title>
+
+    <!-- [CUSTOMIZATION GUIDE: FAVICON] -->
+    <!-- Matches the main portfolio vector SVG icon. Ensure favicon.svg is present in the site root -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" id="favicon-link">
+
+    <!-- BoxIcons CDN v2.1.4 (Cosmic & Developer icon set) -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- Fonts: Poppins (Clean Modern UI) & Black Ops One (Cosmic Display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+    <!-- Theme State Persistence (Inherits active theme & mode from localStorage in index.html) -->
+    <script>
+        try {
+            const root = document.documentElement;
+            const savedTheme = localStorage.getItem('portfolio-theme');
+            if (savedTheme) {
+                root.dataset.theme = savedTheme;
+                root.dataset.customColors = 'true';
+            }
+            const savedScheme = localStorage.getItem('portfolio-scheme');
+            if (savedScheme === 'light' || savedScheme === 'dark') {
+                root.dataset.scheme = savedScheme;
+                root.dataset.customColors = 'true';
+            } else {
+                root.dataset.scheme = savedTheme === 'amber' ? 'light' : 'dark';
+            }
+            const savedBackground = localStorage.getItem('portfolio-background');
+            if (/^#[0-9a-f]{6}$/i.test(savedBackground || '')) {
+                root.style.setProperty('--user-bg-color', savedBackground);
+                root.dataset.userBackground = 'true';
+                root.dataset.customColors = 'true';
+            }
+        } catch (e) {
+            /* Fallback to default cosmic dark theme */
+        }
+    </script>
+
+    <!-- =====================================================================
+         SELF-CONTAINED STYLES
+         Render cleanly and independently across GitHub Pages, Netlify,
+         and Vercel without broken sub-directory path dependencies.
+         ===================================================================== -->
+    <style>
+        /* CSS Variables & Cosmic Theming */
+        :root {
+            --bg-color: #0b0f19;
+            --second-bg-color: #121a2d;
+            --card-bg: rgba(18, 26, 45, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --glass-nav: rgba(11, 15, 25, 0.88);
+            --text-color: #f1f5f9;
+            --text-muted: #94a3b8;
+            --main-color: #00e5ff;
+            --main-hover: #00b4d8;
+            --accent-rgb: 0, 229, 255;
+            --gradient-1: linear-gradient(135deg, #00e5ff 0%, #3b82f6 50%, #8b5cf6 100%);
+            --gradient-card: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            --shadow-glow: 0 0 25px rgba(0, 229, 255, 0.25);
+            --shadow-card: 0 16px 40px -10px rgba(0, 0, 0, 0.65);
+            --font-display: 'Black Ops One', cursive;
+            --font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --terminal-bg: rgba(7, 11, 20, 0.85);
+            --terminal-border: rgba(0, 229, 255, 0.2);
+            --terminal-text: #cbd5e1;
+            --badge-bg: rgba(0, 229, 255, 0.1);
+            --badge-border: rgba(0, 229, 255, 0.3);
+            --color-error: #f43f5e;
+            --color-warn: #fbbf24;
+            --color-success: #10b981;
+        }
+
+        /* Alternate Dark Themes (matches portfolio theme switch) */
+        :root[data-theme="forest"] {
+            --bg-color: #08140e;
+            --second-bg-color: #0f241a;
+            --card-bg: rgba(15, 36, 26, 0.78);
+            --card-border: rgba(52, 211, 153, 0.16);
+            --glass-nav: rgba(8, 20, 14, 0.88);
+            --text-color: #f0fdf4;
+            --text-muted: #86efac;
+            --main-color: #10b981;
+            --main-hover: #059669;
+            --accent-rgb: 16, 185, 129;
+            --gradient-1: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+            --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.28);
+            --terminal-border: rgba(16, 185, 129, 0.25);
+            --badge-bg: rgba(16, 185, 129, 0.12);
+            --badge-border: rgba(16, 185, 129, 0.35);
+        }
+
+        :root[data-theme="amber"] {
+            --bg-color: #16110a;
+            --second-bg-color: #261c10;
+            --card-bg: rgba(38, 28, 16, 0.78);
+            --card-border: rgba(245, 158, 11, 0.18);
+            --glass-nav: rgba(22, 17, 10, 0.88);
+            --text-color: #fffbeb;
+            --text-muted: #fcd34d;
+            --main-color: #f59e0b;
+            --main-hover: #d97706;
+            --accent-rgb: 245, 158, 11;
+            --gradient-1: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%);
+            --shadow-glow: 0 0 25px rgba(245, 158, 11, 0.28);
+            --terminal-border: rgba(245, 158, 11, 0.25);
+            --badge-bg: rgba(245, 158, 11, 0.12);
+            --badge-border: rgba(245, 158, 11, 0.35);
+        }
+
+        :root[data-theme="rose"] {
+            --bg-color: #160b13;
+            --second-bg-color: #251220;
+            --card-bg: rgba(37, 18, 32, 0.78);
+            --card-border: rgba(244, 63, 94, 0.18);
+            --glass-nav: rgba(22, 11, 19, 0.88);
+            --text-color: #fff1f2;
+            --text-muted: #fda4af;
+            --main-color: #f43f5e;
+            --main-hover: #e11d48;
+            --accent-rgb: 244, 63, 94;
+            --gradient-1: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #c026d3 100%);
+            --shadow-glow: 0 0 25px rgba(244, 63, 94, 0.28);
+            --terminal-border: rgba(244, 63, 94, 0.25);
+            --badge-bg: rgba(244, 63, 94, 0.12);
+            --badge-border: rgba(244, 63, 94, 0.35);
+        }
+
+        /* Light Scheme Base (matches style.css line 77) */
+        :root[data-scheme="light"] {
+            --bg-color: #ffffff;
+            --second-bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.08);
+            --glass-nav: rgba(255, 255, 255, 0.96);
+            --text-color: #0f172a;
+            --text-muted: #475569;
+            --main-color: #0284c7;
+            --main-hover: #0369a1;
+            --accent-rgb: 2, 132, 199;
+            --gradient-1: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #7c3aed 100%);
+            --shadow-glow: 0 0 25px rgba(2, 132, 199, 0.2);
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.06);
+            --terminal-bg: #f8fafc;
+            --terminal-border: rgba(2, 132, 199, 0.25);
+            --terminal-text: #1e293b;
+            --badge-bg: rgba(2, 132, 199, 0.1);
+            --badge-border: rgba(2, 132, 199, 0.3);
+            color-scheme: light;
+        }
+
+        /* Light Scheme Theme Accent Variations (matches style.css lines 234-265) */
+        :root[data-scheme="light"][data-theme="ocean"] {
+            --main-color: #0284c7;
+            --main-hover: #0369a1;
+            --accent-rgb: 2, 132, 199;
+            --gradient-1: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #7c3aed 100%);
+            --terminal-border: rgba(2, 132, 199, 0.25);
+            --badge-bg: rgba(2, 132, 199, 0.1);
+            --badge-border: rgba(2, 132, 199, 0.3);
+        }
+
+        :root[data-scheme="light"][data-theme="forest"] {
+            --main-color: #059669;
+            --main-hover: #047857;
+            --accent-rgb: 5, 150, 105;
+            --gradient-1: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            --terminal-border: rgba(5, 150, 105, 0.25);
+            --badge-bg: rgba(5, 150, 105, 0.1);
+            --badge-border: rgba(5, 150, 105, 0.3);
+        }
+
+        :root[data-scheme="light"][data-theme="amber"] {
+            --main-color: #d97706;
+            --main-hover: #b45309;
+            --accent-rgb: 217, 119, 6;
+            --gradient-1: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+            --terminal-border: rgba(217, 119, 6, 0.25);
+            --badge-bg: rgba(217, 119, 6, 0.1);
+            --badge-border: rgba(217, 119, 6, 0.3);
+        }
+
+        :root[data-scheme="light"][data-theme="rose"] {
+            --main-color: #e11d48;
+            --main-hover: #be123c;
+            --accent-rgb: 225, 29, 72;
+            --gradient-1: linear-gradient(135deg, #e11d48 0%, #db2777 100%);
+            --terminal-border: rgba(225, 29, 72, 0.25);
+            --badge-bg: rgba(225, 29, 72, 0.1);
+            --badge-border: rgba(225, 29, 72, 0.3);
+        }
+
+        /* Light Mode: Hide dark background glow orbs and starfield canvas (matches style.css line 111) */
+        :root[data-scheme="light"] .bg-glow,
+        :root[data-scheme="light"] #starfield-canvas {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+
+        :root[data-scheme="light"] .error-card {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        :root[data-scheme="light"] .telemetry-card {
+            background: #f8fafc;
+            border-color: rgba(0, 0, 0, 0.08);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        :root[data-scheme="light"] .telemetry-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            color: var(--text-muted);
+        }
+
+        :root[data-scheme="light"] .telemetry-body {
+            color: var(--terminal-text);
+        }
+
+        :root[data-scheme="light"] .quick-sectors {
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        :root[data-scheme="light"] .sector-pill {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.08);
+            color: var(--text-muted);
+        }
+
+        :root[data-scheme="light"] .sector-pill:hover {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--text-color);
+        }
+
+        :root[data-scheme="light"] .btn-secondary,
+        :root[data-scheme="light"] .btn-outline {
+            background: #f8fafc;
+            border-color: rgba(0, 0, 0, 0.12);
+            color: var(--text-color);
+        }
+
+        :root[data-scheme="light"] .btn-secondary:hover,
+        :root[data-scheme="light"] .btn-outline:hover {
+            background: rgba(var(--accent-rgb), 0.1);
+            border-color: var(--main-color);
+            color: var(--main-color);
+        }
+
+        :root[data-scheme="light"] .header-btn {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        /* Base & Reset */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+        }
+
+        html {
+            font-size: 62.5%; /* 1rem = 10px */
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(var(--accent-rgb), 0.35);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--main-color);
+        }
+
+        /* Cosmic Starfield Canvas */
+        #starfield-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Ambient Cosmic Neon Blobs */
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+        }
+
+        .bg-glow-1 {
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(var(--accent-rgb), 0.45) 0%, transparent 70%);
+            top: -120px;
+            left: -120px;
+        }
+
+        .bg-glow-2 {
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -4s;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.3; }
+            50% { transform: scale(1.12) translate(20px, -20px); opacity: 0.45; }
+            100% { transform: scale(0.95) translate(-15px, 15px); opacity: 0.3; }
+        }
+
+        /* =====================================================================
+           HEADER NAVIGATION
+           ===================================================================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.8rem 5%;
+            background: var(--glass-nav);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            letter-spacing: -0.02em;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .logo-bracket {
+            color: var(--main-color);
+            transition: color 0.3s ease;
+        }
+
+        .logo-accent {
+            color: var(--main-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .header-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem 1.8rem;
+            border-radius: 5rem;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-color);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        .header-btn:hover {
+            color: var(--main-color);
+            border-color: var(--main-color);
+            background: rgba(var(--accent-rgb), 0.1);
+            transform: translateY(-2px);
+        }
+
+        .header-btn i {
+            font-size: 1.6rem;
+        }
+
+        /* =====================================================================
+           MAIN ERROR SECTION
+           ===================================================================== */
+        .error-wrapper {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12rem 2.4rem 6rem;
+        }
+
+        .error-card {
+            max-width: 860px;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 2.4rem;
+            padding: 4.5rem 4rem;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Glowing accent line at top edge of card */
+        .error-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            opacity: 0.85;
+            box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.6);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.6rem 1.6rem;
+            background: var(--badge-bg);
+            border: 1px solid var(--badge-border);
+            border-radius: 5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--main-color);
+            margin-bottom: 2rem;
+            box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.15);
+        }
+
+        .pulse-beacon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--main-color);
+            box-shadow: 0 0 10px var(--main-color);
+            animation: beaconPulse 1.8s infinite;
+        }
+
+        @keyframes beaconPulse {
+            0% { transform: scale(0.95); opacity: 1; box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7); }
+            70% { transform: scale(1.2); opacity: 0.7; box-shadow: 0 0 0 8px rgba(var(--accent-rgb), 0); }
+            100% { transform: scale(0.95); opacity: 1; box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0); }
+        }
+
+        /* Cosmic Illustration Container */
+        .cosmic-visual {
+            width: 220px;
+            height: 180px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lost-probe-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 10px 25px rgba(var(--accent-rgb), 0.3));
+            animation: cosmicFloat 4.5s ease-in-out infinite;
+        }
+
+        @keyframes cosmicFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-14px) rotate(3deg);
+            }
+        }
+
+        /* 404 Heading with Gradient & Cross-Browser Filter Glow */
+        .error-code {
+            font-family: var(--font-display);
+            font-size: clamp(6.5rem, 14vw, 11rem);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* Using filter: drop-shadow prevents glyph clipping artifacts that occur with text-shadow */
+            filter: drop-shadow(0 0 25px rgba(var(--accent-rgb), 0.45));
+            position: relative;
+            display: inline-block;
+            user-select: none;
+        }
+
+        .error-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 1.4rem;
+            letter-spacing: -0.01em;
+        }
+
+        .error-desc {
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            max-width: 620px;
+            margin: 0 auto 2.8rem;
+            line-height: 1.7;
+        }
+
+        .lost-route {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            background: rgba(var(--accent-rgb), 0.12);
+            border: 1px solid rgba(var(--accent-rgb), 0.25);
+            border-radius: 0.6rem;
+            font-family: monospace;
+            font-size: 1.45rem;
+            color: var(--main-color);
+            word-break: break-all;
+        }
+
+        /* =====================================================================
+           TELEMETRY TERMINAL CARD
+           ===================================================================== */
+        .telemetry-card {
+            background: var(--terminal-bg);
+            border: 1px solid var(--terminal-border);
+            border-radius: 1.4rem;
+            padding: 1.8rem 2.2rem;
+            margin: 0 auto 3.4rem;
+            max-width: 640px;
+            text-align: left;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+        }
+
+        .telemetry-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding-bottom: 1.2rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 1.15rem;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-red { background: #f43f5e; }
+        .dot-yellow { background: #fbbf24; }
+        .dot-green { background: #10b981; }
+
+        .telemetry-title {
+            margin-left: 0.6rem;
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .telemetry-code {
+            color: var(--color-error);
+            font-weight: 700;
+        }
+
+        .telemetry-body {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: var(--terminal-text);
+        }
+
+        .telemetry-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .telemetry-label {
+            color: var(--text-muted);
+            min-width: 90px;
+        }
+
+        .telemetry-val {
+            font-weight: 500;
+        }
+
+        .text-cyan { color: var(--main-color); }
+        .text-red { color: var(--color-error); }
+        .text-green { color: var(--color-success); }
+        .text-warn { color: var(--color-warn); }
+        .text-muted { color: var(--text-muted); }
+
+        /* =====================================================================
+           ACTION BUTTONS
+           ===================================================================== */
+        .actions-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.6rem;
+            margin-bottom: 3.4rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9rem;
+            padding: 1.3rem 2.8rem;
+            border-radius: 5rem;
+            font-family: var(--font-body);
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.55);
+            color: #ffffff;
+        }
+
+        .btn-secondary,
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover,
+        .btn-outline:hover {
+            border-color: var(--main-color);
+            color: var(--main-color);
+            background: rgba(var(--accent-rgb), 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.2);
+        }
+
+        .btn i {
+            font-size: 1.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover i {
+            transform: scale(1.15);
+        }
+
+        /* Quick Navigation Sector Pills */
+        .quick-sectors {
+            padding-top: 2.4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .quick-sectors-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-right: 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sector-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.4rem;
+            border-radius: 5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+        }
+
+        .sector-pill:hover {
+            color: var(--text-color);
+            border-color: var(--main-color);
+            background: rgba(var(--accent-rgb), 0.12);
+            transform: translateY(-2px);
+        }
+
+        .sector-pill i {
+            font-size: 1.4rem;
+            color: var(--main-color);
+        }
+
+        /* =====================================================================
+           FOOTER
+           ===================================================================== */
+        .footer {
+            position: relative;
+            z-index: 10;
+            padding: 2.8rem 5%;
+            background: var(--glass-nav);
+            border-top: 1px solid var(--card-border);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.6rem;
+            font-size: 1.35rem;
+            color: var(--text-muted);
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .footer-text p {
+            line-height: 1.5;
+        }
+
+        .footer-sub {
+            font-size: 1.2rem;
+            opacity: 0.75;
+        }
+
+        .footer-action a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 4rem;
+            height: 4rem;
+            background: rgba(var(--accent-rgb), 0.12);
+            border: 1px solid rgba(var(--accent-rgb), 0.25);
+            border-radius: 50%;
+            color: var(--main-color);
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-action a:hover {
+            background: var(--main-color);
+            color: #0b0f19;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.45);
+        }
+
+        /* =====================================================================
+           RESPONSIVE DESIGN (Mobile, Tablet, Desktop)
+           ===================================================================== */
+        @media (max-width: 768px) {
+            html {
+                font-size: 56.25%; /* 1rem = 9px */
+            }
+
+            .error-card {
+                padding: 3.5rem 2.2rem;
+            }
+
+            .cosmic-visual {
+                width: 180px;
+                height: 150px;
+            }
+
+            .telemetry-card {
+                padding: 1.4rem 1.6rem;
+            }
+
+            .telemetry-row {
+                flex-direction: column;
+                gap: 0.2rem;
+            }
+
+            .telemetry-label {
+                min-width: unset;
+                font-size: 1.15rem;
+            }
+
+            .actions-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .footer {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1.4rem 4%;
+            }
+
+            .header-btn span {
+                display: none;
+            }
+
+            .header-btn {
+                padding: 0.8rem 1.2rem;
+            }
+
+            .error-card {
+                padding: 3rem 1.6rem;
+                border-radius: 1.8rem;
+            }
+
+            .quick-sectors {
+                gap: 0.8rem;
+            }
+
+            .sector-pill {
+                padding: 0.5rem 1.1rem;
+                font-size: 1.15rem;
+            }
+        }
+
+        /* Accessibility: Respect Reduced Motion Preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =====================================================================
+         COSMIC BACKGROUND ELEMENTS
+         - Starfield interactive canvas (drifting celestial particles)
+         - Ambient neon glowing orbs
+         ===================================================================== -->
+    <canvas id="starfield-canvas" aria-hidden="true"></canvas>
+    <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
+    <!-- =====================================================================
+         [CUSTOMIZATION GUIDE: 2. HEADER NAVIGATION & LOGO]
+         Customize: Update the logo text or return link. The 'data-home-link'
+         attribute ensures it dynamically navigates to the root regardless of URL depth.
+         ===================================================================== -->
+    <header class="header">
+        <a href="index.html" class="logo" data-home-link aria-label="Return to Dafa Fairuz Rahman Portfolio">
+            <span class="logo-bracket">&lt;</span>Dafa<span class="logo-accent">.dev</span><span class="logo-bracket">/&gt;</span>
+        </a>
+
+        <div class="header-actions">
+            <a href="index.html" class="header-btn" data-home-link title="Back to Homepage">
+                <i class='bx bx-home-alt-2'></i>
+                <span>Return Home</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- =====================================================================
+         MAIN 404 CONTENT
+         ===================================================================== -->
+    <main class="error-wrapper" role="main">
+        <section class="error-card">
+
+            <!-- Anomaly Badge -->
+            <div class="status-badge" role="status">
+                <span class="pulse-beacon" aria-hidden="true"></span>
+                <span>Anomaly Detected // Sector 404</span>
+            </div>
+
+            <!-- Cosmic SVG Illustration: Dynamic Theme-Responsive Space Probe -->
+            <div class="cosmic-visual" aria-hidden="true">
+                <svg class="lost-probe-svg" viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--main-color)"/>
+                            <stop offset="50%" stop-color="#3b82f6"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                        <radialGradient id="planetGlow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="var(--main-color)" stop-opacity="0.35"/>
+                            <stop offset="100%" stop-color="var(--main-color)" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Distant Celestial Sphere with Orbital Ring -->
+                    <circle cx="120" cy="100" r="70" fill="url(#planetGlow)" />
+                    <ellipse cx="120" cy="100" rx="88" ry="24" stroke="url(#neonGradient)" stroke-width="1.8" stroke-dasharray="4 6" opacity="0.6" transform="rotate(-18 120 100)" />
+
+                    <!-- Probe / Satellite Body -->
+                    <g transform="translate(10, 5)">
+                        <!-- Solar Panel Wings Left -->
+                        <path d="M50 85 L85 92 L85 108 L50 101 Z" fill="rgba(var(--accent-rgb), 0.15)" stroke="url(#neonGradient)" stroke-width="1.8" />
+                        <line x1="62" y1="88" x2="62" y2="104" stroke="var(--main-color)" stroke-width="1" opacity="0.6" />
+                        <line x1="74" y1="90" x2="74" y2="106" stroke="var(--main-color)" stroke-width="1" opacity="0.6" />
+
+                        <!-- Solar Panel Wings Right -->
+                        <path d="M135 101 L170 108 L170 92 L135 85 Z" fill="rgba(var(--accent-rgb), 0.15)" stroke="url(#neonGradient)" stroke-width="1.8" />
+                        <line x1="147" y1="103" x2="147" y2="87" stroke="var(--main-color)" stroke-width="1" opacity="0.6" />
+                        <line x1="159" y1="105" x2="159" y2="89" stroke="var(--main-color)" stroke-width="1" opacity="0.6" />
+
+                        <!-- Central Capsule Core -->
+                        <circle cx="110" cy="96" r="22" fill="#0f172a" stroke="url(#neonGradient)" stroke-width="2.5" />
+                        
+                        <!-- Visor / Core Sensor Glow -->
+                        <circle cx="110" cy="96" r="14" fill="url(#neonGradient)" opacity="0.9" />
+                        <ellipse cx="106" cy="92" rx="5" ry="3" fill="#ffffff" opacity="0.75" />
+
+                        <!-- Antenna & Distress Beacon -->
+                        <line x1="110" y1="74" x2="110" y2="52" stroke="url(#neonGradient)" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="110" cy="50" r="4.5" fill="#f43f5e">
+                            <animate attributeName="opacity" values="1;0.2;1" dur="1.5s" repeatCount="indefinite" />
+                        </circle>
+                        <path d="M102 44 A12 12 0 0 1 118 44" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+                            <animate attributeName="opacity" values="0.8;0.1;0.8" dur="1.5s" repeatCount="indefinite" />
+                        </path>
+
+                        <!-- Cosmic Sparkles / Stars -->
+                        <circle cx="35" cy="45" r="1.5" fill="#ffffff" opacity="0.8" />
+                        <circle cx="185" cy="40" r="2" fill="var(--main-color)" opacity="0.8" />
+                        <circle cx="195" cy="140" r="1.5" fill="#ffffff" opacity="0.7" />
+                        <circle cx="30" cy="150" r="2" fill="#8b5cf6" opacity="0.7" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Stylized 404 Heading with Neon Gradient Mask -->
+            <h1 class="error-code" aria-label="Error 404">404</h1>
+
+            <!-- =====================================================================
+                 [CUSTOMIZATION GUIDE: 3. HEADLINE & MESSAGING]
+                 Customize: Edit the heading and description below to personalize your cosmic tone.
+                 ===================================================================== -->
+            <h2 class="error-title">Cosmic Coordinates Lost</h2>
+            <p class="error-desc">
+                You've drifted into deep space. The planetary coordinates you are attempting to reach
+                (<code class="lost-route" id="display-path">/unresolved-orbit</code>) do not exist or have been pulled into a gravitational anomaly.
+            </p>
+
+            <!-- =====================================================================
+                 [CUSTOMIZATION GUIDE: 4. TELEMETRY LOGS & SYSTEM CODE]
+                 Customize: Add or modify system telemetry diagnostics here.
+                 ===================================================================== -->
+            <div class="telemetry-card" role="region" aria-label="System diagnostic telemetry">
+                <div class="telemetry-header">
+                    <div class="terminal-dots" aria-hidden="true">
+                        <span class="terminal-dot dot-red"></span>
+                        <span class="terminal-dot dot-yellow"></span>
+                        <span class="terminal-dot dot-green"></span>
+                    </div>
+                    <span class="telemetry-title">DEEP-SPACE-TELEMETRY // FLIGHT RECORDER</span>
+                    <span class="telemetry-code">SYS:ERR_404</span>
+                </div>
+                <div class="telemetry-body">
+                    <div class="telemetry-row">
+                        <span class="telemetry-label">[STATUS]</span>
+                        <span class="telemetry-val text-red">404 NOT_FOUND &mdash; Sector Uncharted</span>
+                    </div>
+                    <div class="telemetry-row">
+                        <span class="telemetry-label">[TARGET]</span>
+                        <span class="telemetry-val text-cyan" id="telemetry-target">/unknown-route</span>
+                    </div>
+                    <div class="telemetry-row">
+                        <span class="telemetry-label">[VECTOR]</span>
+                        <span class="telemetry-val text-muted">Quantum drift detected &bull; Singularity decoupled</span>
+                    </div>
+                    <div class="telemetry-row">
+                        <span class="telemetry-label">[PROTOCOL]</span>
+                        <span class="telemetry-val text-green">Re-engage warp thrusters &bull; Return to base quadrant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =====================================================================
+                 [CUSTOMIZATION GUIDE: 5. ACTION BUTTONS & DESTINATIONS]
+                 Customize: Change button text, icons, or links.
+                 - data-home-link: Automatically navigates to the homepage root.
+                 - data-section-link: Automatically navigates to a section on the homepage root.
+                 ===================================================================== -->
+            <div class="actions-group">
+                <a href="index.html" class="btn btn-primary" id="btn-home" data-home-link>
+                    <i class='bx bx-compass' aria-hidden="true"></i>
+                    <span>Return to Orbit (Home)</span>
+                </a>
+
+                <a href="index.html#contact" class="btn btn-secondary" id="btn-contact" data-section-link="#contact">
+                    <i class='bx bx-broadcast' aria-hidden="true"></i>
+                    <span>Transmit Distress Signal</span>
+                </a>
+
+                <button type="button" class="btn btn-outline" id="btn-back" title="Go back to previous page">
+                    <i class='bx bx-arrow-back' aria-hidden="true"></i>
+                    <span>Previous Trajectory</span>
+                </button>
+            </div>
+
+            <!-- =====================================================================
+                 [CUSTOMIZATION GUIDE: 6. QUICK TELEPORT SECTOR PILLS]
+                 Customize: Add, remove, or modify links to specific sections of your portfolio.
+                 ===================================================================== -->
+            <nav class="quick-sectors" aria-label="Quick Navigation">
+                <span class="quick-sectors-title"><i class='bx bx-radar' aria-hidden="true"></i> Quick Teleport:</span>
+                <a href="index.html#home" class="sector-pill" data-section-link="#home"><i class='bx bx-planet'></i> Home</a>
+                <a href="index.html#about" class="sector-pill" data-section-link="#about"><i class='bx bx-user'></i> About</a>
+                <a href="index.html#skills" class="sector-pill" data-section-link="#skills"><i class='bx bx-code-alt'></i> Skills</a>
+                <a href="index.html#portfolio" class="sector-pill" data-section-link="#portfolio"><i class='bx bx-briefcase-alt-2'></i> Portfolio</a>
+                <a href="index.html#services" class="sector-pill" data-section-link="#services"><i class='bx bx-server'></i> Services</a>
+                <a href="index.html#contact" class="sector-pill" data-section-link="#contact"><i class='bx bx-envelope'></i> Contact</a>
+            </nav>
+
+        </section>
+    </main>
+
+    <!-- =====================================================================
+         [CUSTOMIZATION GUIDE: 7. FOOTER]
+         Matches main portfolio footer styling & branding.
+         ===================================================================== -->
+    <footer class="footer">
+        <a href="index.html" class="footer-logo" data-home-link>
+            <span class="logo-bracket">&lt;</span>Dafa<span class="logo-accent">.dev</span><span class="logo-bracket">/&gt;</span>
+        </a>
+
+        <div class="footer-text">
+            <p>&copy; 2026 <strong>Dafa Fairuz Rahman</strong>. All Rights Reserved.</p>
+            <p class="footer-sub">Crafted with passion, clean code &amp; modern aesthetics.</p>
+        </div>
+
+        <div class="footer-action">
+            <a href="index.html" class="footer-iconTop" data-home-link aria-label="Return to homepage top">
+                <i class='bx bx-up-arrow-alt' aria-hidden="true"></i>
+            </a>
+        </div>
+    </footer>
+
+    <!-- =====================================================================
+         CLIENT-SIDE SCRIPTS
+         1. Cross-Platform Dynamic Root Resolution (GitHub Pages, Netlify, Vercel, file:///)
+         2. Dynamic Path Reflection in Telemetry Log (with privacy sanitation)
+         3. Intelligent History Navigation Handling
+         4. Interactive Cosmic Starfield Animation (self-throttling & leak-free)
+         ===================================================================== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // 1. Resolve site base path (supports GitHub Pages subpaths, custom domain/Netlify/Vercel, and file:///)
+            var isFile = window.location.protocol === 'file:';
+            var basePath = './';
+            if (!isFile) {
+                var pathSegments = window.location.pathname.split('/').filter(Boolean);
+                // On GitHub Pages project sites: username.github.io/repo-name/...
+                if (window.location.hostname.endsWith('github.io') && pathSegments.length > 0) {
+                    basePath = '/' + pathSegments[0] + '/';
+                } else {
+                    basePath = '/';
+                }
+            }
+            var homeUrl = isFile ? 'index.html' : basePath;
+
+            // Apply dynamic base to navigation links so nested 404 routes don't break
+            try {
+                var homeLinks = document.querySelectorAll('[data-home-link]');
+                for (var i = 0; i < homeLinks.length; i++) {
+                    homeLinks[i].setAttribute('href', homeUrl);
+                }
+
+                var sectionLinks = document.querySelectorAll('[data-section-link]');
+                for (var j = 0; j < sectionLinks.length; j++) {
+                    var hash = sectionLinks[j].getAttribute('data-section-link') || '';
+                    sectionLinks[j].setAttribute('href', isFile ? ('index.html' + hash) : (basePath + hash));
+                }
+
+                var favicon = document.getElementById('favicon-link');
+                if (favicon && !isFile) {
+                    favicon.setAttribute('href', basePath + 'favicon.svg');
+                }
+            } catch (e) {
+                // Graceful fallback to static HTML hrefs
+            }
+
+            // 2. Safe Dynamic Path Reflection (Sanitizes local filesystem & direct /404.html previews)
+            try {
+                var displayPath = '/lost-coordinates/sector-404';
+                if (!isFile) {
+                    var rawPath = window.location.pathname || '';
+                    var rawSearch = window.location.search || '';
+                    if (rawPath === '/404.html' || rawPath === '/404' || rawPath === '' || rawPath === '/') {
+                        displayPath = '/uncharted-orbit/deep-space-anomaly';
+                    } else {
+                        displayPath = rawPath + rawSearch;
+                    }
+                } else {
+                    displayPath = '/simulation/lost-coordinate';
+                }
+
+                var pathEl = document.getElementById('display-path');
+                var telemetryEl = document.getElementById('telemetry-target');
+                if (pathEl) pathEl.textContent = displayPath;
+                if (telemetryEl) telemetryEl.textContent = displayPath;
+            } catch (err) {}
+
+            // 3. Smart History Navigation Handling
+            var backBtn = document.getElementById('btn-back');
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    var hasInternalHistory = false;
+                    try {
+                        if (document.referrer) {
+                            var referrerUrl = new URL(document.referrer);
+                            if (referrerUrl.origin === window.location.origin) {
+                                hasInternalHistory = true;
+                            }
+                        }
+                    } catch (e) {}
+
+                    if (hasInternalHistory && window.history && window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.location.href = homeUrl;
+                    }
+                });
+            }
+
+            // 4. Starfield Canvas Particle System (Self-throttling & leak-free)
+            var canvas = document.getElementById('starfield-canvas');
+            if (!canvas) return;
+
+            var isLightScheme = document.documentElement.dataset.scheme === 'light';
+            if (isLightScheme) return; // Cleanly disable dark starfield in light mode matching main site
+
+            var prefersReducedMotion = false;
+            try {
+                prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            } catch (e) {}
+
+            var ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            var width = 0;
+            var height = 0;
+            var stars = [];
+            var animationFrameId = null;
+
+            function resizeCanvas() {
+                var newWidth = window.innerWidth;
+                var newHeight = window.innerHeight;
+                if (width === newWidth && height === newHeight) return; // Ignore mobile toolbar scroll resize
+                width = canvas.width = newWidth;
+                height = canvas.height = newHeight;
+                initStars();
+                if (prefersReducedMotion) {
+                    renderStatic();
+                }
+            }
+
+            function initStars() {
+                var count = Math.min(Math.max(Math.floor((width * height) / 14000), 40), 100);
+                stars = [];
+                for (var i = 0; i < count; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 1.5 + 0.4,
+                        baseAlpha: Math.random() * 0.6 + 0.2,
+                        alpha: Math.random() * 0.6 + 0.2,
+                        twinkleSpeed: (Math.random() * 0.02 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
+                        vx: (Math.random() - 0.5) * 0.15,
+                        vy: (Math.random() - 0.5) * 0.15,
+                        color: Math.random() > 0.3 ? '#00e5ff' : (Math.random() > 0.5 ? '#a78bfa' : '#ffffff')
+                    });
+                }
+            }
+
+            function renderStatic() {
+                ctx.clearRect(0, 0, width, height);
+                for (var i = 0; i < stars.length; i++) {
+                    var s = stars[i];
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = s.color;
+                    ctx.globalAlpha = s.baseAlpha;
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (var i = 0; i < stars.length; i++) {
+                    var s = stars[i];
+                    s.alpha += s.twinkleSpeed;
+                    if (s.alpha > 0.95 || s.alpha < 0.15) {
+                        s.twinkleSpeed = -s.twinkleSpeed;
+                    }
+                    s.x += s.vx;
+                    s.y += s.vy;
+
+                    if (s.x < 0) s.x = width;
+                    if (s.x > width) s.x = 0;
+                    if (s.y < 0) s.y = height;
+                    if (s.y > height) s.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = s.color;
+                    ctx.globalAlpha = Math.max(0.1, Math.min(1, s.alpha));
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 1;
+                animationFrameId = requestAnimationFrame(animate);
+            }
+
+            function startAnimation() {
+                if (prefersReducedMotion || animationFrameId) return;
+                animate();
+            }
+
+            function stopAnimation() {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            if (!prefersReducedMotion) {
+                startAnimation();
+
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        stopAnimation();
+                    } else {
+                        startAnimation();
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
